@@ -31,7 +31,8 @@ Vince蔡培培
 wx:shinyvince2
 
 # 依赖项目
-使用了https://github.com/yaphone/itchat4j的微信API封装。并修复了该项目的若干BUG，并进行了拓展；
+使用了https://github.com/yaphone/itchat4j 的微信API封装。
+并修复了该项目的若干BUG，并进行了拓展；
 
 # 开源协议
 GPL开源协议
