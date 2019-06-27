@@ -21,8 +21,9 @@
 + 老微信号才有微信接口权限，新微信号没微信接口权限故没法做机器人；
 
 # 使用截图
-!()[https://github.com/shinyvince/XiaoV/blob/master/src/main/resources/example1.jpg]
-!()[https://github.com/shinyvince/XiaoV/blob/master/src/main/resources/example2.jpg]
+![](https://github.com/shinyvince/XiaoV/blob/master/src/main/resources/example1.jpg)
+
+![](https://github.com/shinyvince/XiaoV/blob/master/src/main/resources/example2.jpg)
 
 
 # 作者
