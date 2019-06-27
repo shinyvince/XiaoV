@@ -10,8 +10,6 @@
 + 每日反思打卡；
 + 周报；
 
-# 使用截图
-
 # 怎么使用
 + 下载项目源码
 + 修改config类，对指定群进行组件配置
@@ -21,6 +19,11 @@
 注意:
 + 使用前记得先把要做机器人的微信号拉进指定群；
 + 老微信号才有微信接口权限，新微信号没微信接口权限故没法做机器人；
+
+# 使用截图
+!()[https://github.com/shinyvince/XiaoV/blob/master/src/main/resources/example1.jpg]
+!()[https://github.com/shinyvince/XiaoV/blob/master/src/main/resources/example2.jpg]
+
 
 # 作者
 Vince蔡培培
