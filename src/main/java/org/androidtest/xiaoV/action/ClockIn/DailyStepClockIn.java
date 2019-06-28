@@ -1,11 +1,14 @@
-package org.androidtest.xiaoV.clockIn;
+package org.androidtest.xiaoV.action.ClockIn;
 
 import static org.androidtest.xiaoV.data.Constant.CURRENT_WEEK_SAVE_PATH;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.androidtest.xiaoV.Config;
 import org.androidtest.xiaoV.data.Constant;
@@ -15,6 +18,8 @@ import org.androidtest.xiaoV.publicutil.StringUtil;
 import org.androidtest.xiaoV.publicutil.WeekHelper;
 
 import cn.zhouyafeng.itchat4j.api.WechatTools;
+import cn.zhouyafeng.itchat4j.beans.BaseMsg;
+import cn.zhouyafeng.itchat4j.utils.enums.MsgTypeEnum;
 
 /**
  * 每日步数打卡组件
@@ -23,24 +28,43 @@ import cn.zhouyafeng.itchat4j.api.WechatTools;
  *
  */
 public class DailyStepClockIn extends ClockIn {
+
 	public DailyStepClockIn(int weeklyLimitTimes) {
 		super(weeklyLimitTimes);
 	}
 
 	@Override
-	public List<String> getVaildKeywords() {
-		return Config.TEXT_MSG_WEEKLY_STEP_VAILD_KEYWORD_LIST;
+	@SuppressWarnings("rawtypes")
+	public List<String> getVaildKeywords(MsgTypeEnum type) {// TODO
+															// 待重构，可以在基类里使用减少代码量
+		List<String> list = new ArrayList<String>();
+		Iterator iter = Config.DAILY_STEP_VAILD_KEYWORD_LIST.entrySet()
+				.iterator();
+		while (iter.hasNext()) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			String vaildKeyword = (String) entry.getKey();
+			MsgTypeEnum vaildType = (MsgTypeEnum) entry.getValue();
+			if (vaildType == type) {
+				list.add(vaildKeyword);
+			}
+		}
+		return list;
 	}
 
 	@Override
-	public String handleClockIn(String senderNickName) {
-		LogUtil.MSG.debug("handleClockIn: " + this.getClass().getSimpleName()
-				+ ", args: " + senderNickName);
+	public String action(Group group, BaseMsg msg) {
+		LogUtil.MSG.debug("action: " + this.getClass().getSimpleName());
+
+		String currentGroupNickName = WechatTools
+				.getGroupNickNameByGroupUserName(msg.getFromUserName());
+		String senderNickName = WechatTools
+				.getMemberDisplayOrNickNameByGroupNickName(
+						currentGroupNickName, msg.getStatusNotifyUserName());
 		String result = null;
 		String fileUserName = StringUtil.filter(senderNickName);
 		if (StringUtil.ifNullOrEmpty(fileUserName)) {
 			result = "@" + senderNickName + " 你的名字有无法识别的字符，无法处理！请改昵称。";
-			LOG.warn("handleClockIn: " + result);
+			LogUtil.MSG.warn("action: " + result);
 			return result;
 		}
 
@@ -79,7 +103,7 @@ public class DailyStepClockIn extends ClockIn {
 				}
 
 			} else {
-				LOG.error("handleClockIn: " + "error:" + dir.getAbsolutePath()
+				LogUtil.MSG.error("action: " + "error:" + dir.getAbsolutePath()
 						+ "非文件夹路径！");
 			}
 		} catch (IOException e) {
@@ -89,15 +113,15 @@ public class DailyStepClockIn extends ClockIn {
 	}
 
 	@Override
-	public String reportProcess(Group group) {
-		LogUtil.MSG.debug("reportProcess: " + this.getClass().getSimpleName()
-				+ ", " + group.getGroupNickName());
+	public String report(Group group) {
+		LogUtil.MSG.debug("report: " + this.getClass().getSimpleName() + ", "
+				+ group.getGroupNickName());
 		String currentGroupNickName = group.getGroupNickName();
 		String result = null;
 		File dir = CURRENT_WEEK_SAVE_PATH;
 		List<String> list = WechatTools
 				.getMemberListByGroupNickName2(currentGroupNickName);
-		LogUtil.MSG.debug("reportProcess: " + currentGroupNickName + "群成员:"
+		LogUtil.MSG.debug("report: " + currentGroupNickName + "群成员:"
 				+ list.toString());
 		String errorStep = null;
 		String error404Name = "";
@@ -139,9 +163,14 @@ public class DailyStepClockIn extends ClockIn {
 				result = result + "\n如下（微信名含非法字符无法统计: " + error404Name + "）";
 			}
 		} else {
-			LOG.error("reportProcess: " + "error:" + dir.getAbsolutePath()
-					+ "非文件夹路径！");
+			LogUtil.MSG.error("report: " + "reportProcess: " + "error:"
+					+ dir.getAbsolutePath() + "非文件夹路径！");
 		}
 		return result;
+	}
+
+	@Override
+	public boolean notify(Group group) {
+		return false;
 	}
 }

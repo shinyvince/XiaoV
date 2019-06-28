@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.androidtest.xiaoV.Config;
-import org.androidtest.xiaoV.customized.Customized;
+import org.androidtest.xiaoV.action.Action;
 import org.androidtest.xiaoV.data.Constant;
 import org.androidtest.xiaoV.data.Group;
 import org.androidtest.xiaoV.publicutil.LogUtil;
@@ -53,28 +53,15 @@ public class Wechat {
 		while (true) {
 			boolean isReported = false;
 			for (Group currentGroup : groupList) {
-				List<Customized> customizedList = currentGroup
-						.getCustomizedList();
+				List<Action> customizedList = currentGroup.getActionList();
 				if (StringUtil.ifNotNullOrEmpty(customizedList)) {
-					for (Customized customized : customizedList) {
-						boolean result = customized
-								.reportProcessRegularly(currentGroup);
+					for (Action customized : customizedList) {
+						boolean result = customized.notify(currentGroup);
 						if (result && isReported == false) {
 							isReported = true;
 						}
 					}
 				}
-				// List<Reminder> reminderlList =
-				// currentGroup.getReminderList();
-				// if (StringUtil.ifNotNullOrEmpty(reminderlList)) {
-				// for (Reminder reminder : reminderlList) {
-				// boolean result = reminder
-				// .reminderRegularly(currentGroup);
-				// if (result && isReported == false) {
-				// isReported = true;
-				// }
-				// }
-				// }
 			}
 			if (isReported) {
 				LogUtil.MSG.debug("setBoardcastListener: " + "isReported "

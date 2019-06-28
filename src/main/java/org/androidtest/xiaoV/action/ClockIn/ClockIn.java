@@ -1,20 +1,9 @@
-package org.androidtest.xiaoV.clockIn;
+package org.androidtest.xiaoV.action.ClockIn;
 
-import java.util.List;
-
-import org.androidtest.xiaoV.data.Group;
+import org.androidtest.xiaoV.action.Action;
 import org.androidtest.xiaoV.publicutil.LogUtil;
-import org.apache.log4j.Logger;
 
-/**
- * 打卡组件（抽象类）
- * 
- * @author caipeipei
- *
- */
-public abstract class ClockIn {
-	protected Logger LOG = Logger.getLogger(ClockIn.class);
-
+public abstract class ClockIn extends Action {
 	public ClockIn(int weeklyLimitTimes) {
 		if (weeklyLimitTimes >= 0) {
 			this.weeklyLimitTimes = weeklyLimitTimes;
@@ -26,12 +15,6 @@ public abstract class ClockIn {
 	}
 
 	protected int weeklyLimitTimes = -1;
-
-	public abstract List<String> getVaildKeywords();
-
-	public abstract String handleClockIn(String nickName);
-
-	public abstract String reportProcess(Group group);
 
 	protected int getWeeklyLimitTimes() {
 		return weeklyLimitTimes;

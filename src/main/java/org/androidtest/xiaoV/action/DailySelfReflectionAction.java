@@ -1,4 +1,4 @@
-package org.androidtest.xiaoV.customized;
+package org.androidtest.xiaoV.action;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -26,14 +26,14 @@ import cn.zhouyafeng.itchat4j.utils.tools.DownloadTools;
  * @author caipeipei
  *
  */
-public class DailySelfReflectionCustomized extends Customized {
+public class DailySelfReflectionAction extends Action {
 
 	private Map<String, File> whiteList = new HashMap<String, File>();
 	private int noonRemindTime = 1300;
 	private int nightRemindTime = 0112;
 	private boolean noonRemind = false;
 
-	public DailySelfReflectionCustomized(Map<String, File> whiteList,
+	public DailySelfReflectionAction(Map<String, File> whiteList,
 			int noonRemindTime, int nightRemindTime) {
 		setWhiteList(whiteList);
 		setNoonRemind(true);
@@ -41,26 +41,35 @@ public class DailySelfReflectionCustomized extends Customized {
 		setNoonRemindTime(noonRemindTime);
 	}
 
-	public DailySelfReflectionCustomized(Map<String, File> whiteList,
+	public DailySelfReflectionAction(Map<String, File> whiteList,
 			int nightRemindTime) {
 		setWhiteList(whiteList);
 		setNoonRemind(false);
 		setNightRemindTime(nightRemindTime);
 	}
 
-	public DailySelfReflectionCustomized(Map<String, File> whiteList,
+	public DailySelfReflectionAction(Map<String, File> whiteList,
 			boolean noonRemind) {
 		setWhiteList(whiteList);
 		setNoonRemind(noonRemind);
 	}
 
 	@Override
-	public List<String> getVaildKeywords(String msgType) {
-		if (msgType.equals(MsgTypeEnum.MEDIA.getType())) {
-			return Config.MEDIA_MSG_DAILY_SELF_REFLECTION_VAILD_KEYWORD_LIST;
-		} else {
-			return new ArrayList<String>();
+	@SuppressWarnings("rawtypes")
+	public List<String> getVaildKeywords(MsgTypeEnum type) {// TODO
+															// 待重构，可以在基类里使用减少代码量
+		List<String> list = new ArrayList<String>();
+		Iterator iter = Config.DAILY_SELF_REFLECTION_VAILD_KEYWORD_LIST
+				.entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			String vaildKeyword = (String) entry.getKey();
+			MsgTypeEnum vaildType = (MsgTypeEnum) entry.getValue();
+			if (vaildType == type) {
+				list.add(vaildKeyword);
+			}
 		}
+		return list;
 	}
 
 	private int getNoonRemindTime() {
@@ -122,7 +131,7 @@ public class DailySelfReflectionCustomized extends Customized {
 					+ File.separator
 					+ createDailySelfReflectionFilename(nickName)
 					+ getFileExtension(filePath));
-			LOG.info("setWhiteList:" + newfile.getAbsolutePath());
+			LogUtil.MSG.info("setWhiteList: " + newfile.getAbsolutePath());
 			if (filePath.exists() && filePath.isFile()) {// A路径存在
 				LogUtil.MSG.debug("setWhiteList: " + nickName + ", 预设的路径存在文件"
 						+ filePath.getAbsolutePath());
@@ -168,10 +177,8 @@ public class DailySelfReflectionCustomized extends Customized {
 	}
 
 	@Override
-	@SuppressWarnings("rawtypes")
-	public String handleClockInCustomized(Group group, BaseMsg msg) {
-		LogUtil.MSG.debug("handleClockInCustomized: "
-				+ this.getClass().getSimpleName() + ", "
+	public String action(Group group, BaseMsg msg) {
+		LogUtil.MSG.debug("action: " + this.getClass().getSimpleName() + ", "
 				+ group.getGroupNickName());
 		String result = null;
 
@@ -188,11 +195,10 @@ public class DailySelfReflectionCustomized extends Customized {
 			Map.Entry entry = (Map.Entry) iter.next();
 			String nickName = (String) entry.getKey();
 			File filePath = (File) entry.getValue();
-			LogUtil.MSG.debug("handleClockInCustomized: nickName: " + nickName
+			LogUtil.MSG.debug("action: nickName: " + nickName
 					+ ",currentNickName: " + currentNickName
 					+ ",currentDisplayName: " + currentDisplayName);
-			LogUtil.MSG.debug("handleClockInCustomized: currentFileName: "
-					+ currentFileName
+			LogUtil.MSG.debug("action: currentFileName: " + currentFileName
 					+ ",createDailySelfReflectionFilename(nickName): "
 					+ createDailySelfReflectionFilename(nickName));
 			if ((nickName.contains(currentNickName) || nickName
@@ -215,16 +221,20 @@ public class DailySelfReflectionCustomized extends Customized {
 	}
 
 	@Override
-	@SuppressWarnings("rawtypes")
-	public boolean reportProcessRegularly(Group currentGroup) {
+	public String report(Group group) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean notify(Group currentGroup) {
 		Date currentDate = new Date();
 		int currentTime = Integer.parseInt(new SimpleDateFormat("HHmm")
 				.format(currentDate));
 		boolean result = false;
 		if (isNoonRemind()) {
-			LogUtil.MSG.debug("reportProcessRegularly: currentTime: "
-					+ currentTime + ", getNoonRemindTime(): "
-					+ getNoonRemindTime());
+			LogUtil.MSG.debug("notify: currentTime: " + currentTime
+					+ ", getNoonRemindTime(): " + getNoonRemindTime());
 			if (currentTime == getNoonRemindTime()) {
 				Iterator iter = whiteList.entrySet().iterator();
 				while (iter.hasNext()) {
@@ -248,15 +258,13 @@ public class DailySelfReflectionCustomized extends Customized {
 					}
 				}
 				result = true;// 传false表示允许轮询，不阻塞消息线程
-				LOG.info("reportProcessRegularly: "
-						+ currentGroup.getGroupNickName() + ": report "
-						+ result);
+				LogUtil.MSG.info("notify: " + currentGroup.getGroupNickName()
+						+ ": report " + result);
 			}
 		}
 		if (currentTime == getNightRemindTime()) {
-			LogUtil.MSG.debug("reportProcessRegularly: currentTime: "
-					+ currentTime + ", getNightRemindTime(): "
-					+ getNightRemindTime());
+			LogUtil.MSG.debug("notify: currentTime: " + currentTime
+					+ ", getNightRemindTime(): " + getNightRemindTime());
 			Iterator iter = whiteList.entrySet().iterator();
 			while (iter.hasNext()) {
 				Map.Entry entry = (Map.Entry) iter.next();
@@ -277,8 +285,8 @@ public class DailySelfReflectionCustomized extends Customized {
 
 			}
 			result = true;// 传false表示允许轮询，不阻塞消息线程
-			LOG.info("reportProcessRegularly: "
-					+ currentGroup.getGroupNickName() + ": report " + result);
+			LogUtil.MSG.info("notify: " + currentGroup.getGroupNickName()
+					+ ": report " + result);
 
 		}
 		return result;

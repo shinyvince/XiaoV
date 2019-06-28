@@ -1,12 +1,15 @@
-package org.androidtest.xiaoV.clockIn;
+package org.androidtest.xiaoV.action.ClockIn;
 
 import static org.androidtest.xiaoV.data.Constant.CURRENT_WEEK_SAVE_PATH;
 import static org.androidtest.xiaoV.data.Constant.SIMPLE_DAY_FORMAT_FILE;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.androidtest.xiaoV.Config;
 import org.androidtest.xiaoV.data.Group;
@@ -15,6 +18,8 @@ import org.androidtest.xiaoV.publicutil.StringUtil;
 import org.androidtest.xiaoV.publicutil.WeekHelper;
 
 import cn.zhouyafeng.itchat4j.api.WechatTools;
+import cn.zhouyafeng.itchat4j.beans.BaseMsg;
+import cn.zhouyafeng.itchat4j.utils.enums.MsgTypeEnum;
 
 /**
  * 每周运动打卡组件
@@ -29,15 +34,31 @@ public class WeeklySportClockIn extends ClockIn {
 	}
 
 	@Override
-	public List<String> getVaildKeywords() {
-		return Config.TEXT_MSG_WEEKLY_SPORT_VAILD_KEYWORD_LIST;
+	public List<String> getVaildKeywords(MsgTypeEnum type) {// TODO
+															// 待重构，可以在基类里使用减少代码量
+		List<String> list = new ArrayList<String>();
+		Iterator iter = Config.WEEKLY_SPORT_VAILD_KEYWORD_LIST.entrySet()
+				.iterator();
+		while (iter.hasNext()) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			String vaildKeyword = (String) entry.getKey();
+			MsgTypeEnum vaildType = (MsgTypeEnum) entry.getValue();
+			if (vaildType == type) {
+				list.add(vaildKeyword);
+			}
+		}
+		return list;
 	}
 
 	@Override
-	public String handleClockIn(String senderNickName) {
-		LogUtil.MSG.debug("handleClockIn: " + this.getClass().getSimpleName()
-				+ ", args: " + senderNickName);
+	public String action(Group group, BaseMsg msg) {
+		LogUtil.MSG.debug("action: " + this.getClass().getSimpleName());
 		String result = null;
+		String currentGroupNickName = WechatTools
+				.getGroupNickNameByGroupUserName(msg.getFromUserName());
+		String senderNickName = WechatTools
+				.getMemberDisplayOrNickNameByGroupNickName(
+						currentGroupNickName, msg.getStatusNotifyUserName());
 		String fileUserName = StringUtil.filter(senderNickName);
 		int week_sport_limit_times = getWeeklyLimitTimes();
 		if (StringUtil.ifNullOrEmpty(fileUserName)) {
@@ -90,7 +111,7 @@ public class WeeklySportClockIn extends ClockIn {
 				}
 
 			} else {
-				LOG.error("handleClockIn: " + "error:" + dir.getAbsolutePath()
+				LogUtil.MSG.error("action: " + "error:" + dir.getAbsolutePath()
 						+ "非文件夹路径！");
 			}
 		} catch (IOException e) {
@@ -101,15 +122,15 @@ public class WeeklySportClockIn extends ClockIn {
 	}
 
 	@Override
-	public String reportProcess(Group group) {
-		LogUtil.MSG.debug("reportProcess: " + this.getClass().getSimpleName()
-				+ ", " + group.getGroupNickName());
+	public String report(Group group) {
+		LogUtil.MSG.debug("report: " + this.getClass().getSimpleName() + ", "
+				+ group.getGroupNickName());
 		String currentGroupNickName = group.getGroupNickName();
 		String result = null;
 		File dir = CURRENT_WEEK_SAVE_PATH;
 		List<String> list = WechatTools
 				.getMemberListByGroupNickName2(currentGroupNickName);
-		LogUtil.MSG.debug("reportProcess: " + currentGroupNickName + "群成员:"
+		LogUtil.MSG.debug("report: " + currentGroupNickName + "群成员:"
 				+ list.toString());
 		String errorSport = null;
 		String error404Name = "";
@@ -148,10 +169,16 @@ public class WeeklySportClockIn extends ClockIn {
 				result = result + "\n如下（微信名含非法字符无法统计: " + error404Name + "）";
 			}
 		} else {
-			LOG.error("reportProcess: " + "error:" + dir.getAbsolutePath()
+			LogUtil.MSG.error("report: " + "error:" + dir.getAbsolutePath()
 					+ "非文件夹路径！");
 		}
 		return result;
+	}
+
+	@Override
+	public boolean notify(Group group) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

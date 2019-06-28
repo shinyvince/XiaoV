@@ -7,8 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.androidtest.xiaoV.clockIn.ClockIn;
-import org.androidtest.xiaoV.customized.Customized;
+import org.androidtest.xiaoV.action.Action;
 import org.androidtest.xiaoV.data.Constant;
 import org.androidtest.xiaoV.data.Group;
 import org.androidtest.xiaoV.publicutil.LogUtil;
@@ -37,7 +36,8 @@ public class MessageHandler {
 		LogUtil.MSG.debug("returnSpecificKeywordFromTextMsg: " + group + ", "
 				+ msg);
 		List<String> currentGroupVaildKeyword = new ArrayList<String>();
-		currentGroupVaildKeyword.addAll(group.getAllVaildTextMsgKeyword());
+		currentGroupVaildKeyword.addAll(group
+				.getAllVaildKeyword(MsgTypeEnum.TEXT));
 		String content = msg.getText();
 		String robotDisplayName = WechatTools
 				.getMemberDisplayNameByGroupNickName(group.getGroupNickName(),
@@ -81,18 +81,12 @@ public class MessageHandler {
 				robotDisplayName = robotCall;
 			}
 			String keyword = returnSpecificKeywordFromTextMsg(group, msg);
-			ClockIn clockIn = group.getClockInFromVaildKeywords(keyword);
-			Customized lCustomized = group
-					.getCustomizedFromVaildKeywords(keyword);
+			Action action = group.getActionFromVaildKeywords(keyword,
+					MsgTypeEnum.TEXT);
+
 			if (keyword != null) {
-				if (clockIn != null) {
-					String nickName = WechatTools
-							.getMemberDisplayOrNickNameByGroupNickName(
-									currentGroupNickName,
-									msg.getStatusNotifyUserName());
-					result = clockIn.handleClockIn(nickName);
-				} else if (lCustomized != null) {
-					result = lCustomized.handleClockInCustomized(group, msg);
+				if (action != null) {
+					result = action.action(group, msg);
 				}
 			} else {
 				LOG.info("groupMsgHandle: " + "非法参数: " + content
@@ -103,7 +97,7 @@ public class MessageHandler {
 				LogUtil.MSG.debug("groupMsgHandle: result: " + result
 						+ ",content:" + content + ",robotCall: " + robotCall
 						+ ",robotDisplayName: " + robotDisplayName);
-				result = "我听不懂（怪老板咯），需要\"菜单\"请回复菜单";
+				result = "我听不懂，需要\"菜单\"请回复菜单";
 			}
 		}
 		return result;
@@ -370,7 +364,8 @@ public class MessageHandler {
 		LogUtil.MSG.debug("returnSpecificKeywordFromSysMsg: " + group + ", "
 				+ msg);
 		List<String> currentGroupVaildKeyword = new ArrayList<String>();
-		currentGroupVaildKeyword.addAll(group.getAllVaildSysMsgKeyword());
+		currentGroupVaildKeyword.addAll(group
+				.getAllVaildKeyword(MsgTypeEnum.SYS));
 		String content = msg.getContent();
 		if (StringUtil.ifNotNullOrEmpty(currentGroupVaildKeyword)) {
 			for (int i = 0; i < currentGroupVaildKeyword.size(); i++) {
@@ -410,12 +405,11 @@ public class MessageHandler {
 				.getGroupNickNameByGroupUserName(msg.getFromUserName());
 		if (isCurrentMsgFromVaildGroup(group, currentGroupNickName)) {
 			String keyword = returnSpecificKeywordFromSysMsg(group, msg);
-			Customized lCustomized = group
-					.getCustomizedFromVaildKeywords(keyword);
-			if (lCustomized != null && keyword != null) {
-				if (lCustomized.getVaildKeywords(MsgTypeEnum.SYS.getType())
-						.contains(keyword)) {
-					lCustomized.handleClockInCustomized(group, msg);
+			Action action = group.getActionFromVaildKeywords(keyword,
+					MsgTypeEnum.SYS);
+			if (action != null && keyword != null) {
+				if (action.getVaildKeywords(MsgTypeEnum.SYS).contains(keyword)) {
+					action.action(group, msg);
 				}
 			}
 		}
@@ -458,17 +452,17 @@ public class MessageHandler {
 				.getGroupNickNameByGroupUserName(msg.getFromUserName());
 		if (isCurrentMsgFromVaildGroup(group, currentGroupNickName)) {
 			String keyword = returnSpecificKeywordFromMediaMsg(group, msg);
-			Customized customized = group
-					.getCustomizedFromVaildKeywords(keyword);
+			Action customized = group.getActionFromVaildKeywords(keyword,
+					MsgTypeEnum.MEDIA);
 			if (keyword != null) {
 				if (customized != null) {
-					result = customized.handleClockInCustomized(group, msg);
+					result = customized.action(group, msg);
 				}
 			} else {
 				String fileName = Constant.SIMPLE_DATE_FORMAT_FILE
 						.format(new Date()) + "-" + msg.getFileName();
-				String filePath = CURRENT_WEEK_SAVE_PATH + File.separator
-						+ fileName; // 这里是需要保存收到的文件路径，文件可以是任何格式如PDF，WORD，EXCEL等。
+				String filePath = CURRENT_WEEK_SAVE_PATH.getAbsolutePath()
+						+ File.separator + fileName; // 这里是需要保存收到的文件路径，文件可以是任何格式如PDF，WORD，EXCEL等。
 				DownloadTools.getDownloadFn(msg, MsgTypeEnum.MEDIA.getType(),
 						filePath);
 			}
@@ -481,7 +475,8 @@ public class MessageHandler {
 		LogUtil.MSG.debug("returnSpecificKeywordFromMediaMsg: " + group + ", "
 				+ msg);
 		List<String> currentGroupVaildKeyword = new ArrayList<String>();
-		currentGroupVaildKeyword.addAll(group.getAllVaildMediaMsgKeyword());
+		currentGroupVaildKeyword.addAll(group
+				.getAllVaildKeyword(MsgTypeEnum.MEDIA));
 		String content = msg.getContent();
 
 		if (StringUtil.ifNotNullOrEmpty(currentGroupVaildKeyword)) {

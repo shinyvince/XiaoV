@@ -3,11 +3,9 @@ package org.androidtest.xiaoV.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.androidtest.xiaoV.clockIn.ClockIn;
-import org.androidtest.xiaoV.customized.Customized;
+import org.androidtest.xiaoV.action.Action;
 import org.androidtest.xiaoV.publicutil.LogUtil;
 import org.androidtest.xiaoV.publicutil.StringUtil;
-import org.androidtest.xiaoV.reminder.Reminder;
 
 import cn.zhouyafeng.itchat4j.api.WechatTools;
 import cn.zhouyafeng.itchat4j.utils.enums.MsgTypeEnum;
@@ -17,16 +15,12 @@ public class Group {
 	private String groupId;
 	private String groupNickName;
 	private String admin;
-	private List<ClockIn> clockInList = new ArrayList<>();
-	private List<Customized> customizedList = new ArrayList<>();
-	private List<Reminder> reminderList = new ArrayList<>();
+	private List<Action> actionList = new ArrayList<>();
 
 	@Override
 	public String toString() {
 		return "Group [groupId=" + groupId + ", groupNickName=" + groupNickName
-				+ ", admin=" + admin + ", clockInList=" + clockInList
-				+ ", customizedList=" + customizedList + ", reminderList="
-				+ reminderList + "]";
+				+ ", admin=" + admin + ", actionList=" + actionList + "]";
 	}
 
 	public Group(String nickName, String admin) {
@@ -60,52 +54,19 @@ public class Group {
 		this.admin = admin;
 	}
 
-	public List<ClockIn> getClockInList() {
-		return clockInList;
+	public List<Action> getActionList() {
+		return actionList;
 	}
 
-	public List<Customized> getCustomizedList() {
-		return customizedList;
+	public void setActionList(List<Action> actionsList) {
+		this.actionList.clear();
+		this.actionList = actionsList;
 	}
 
-	public List<Reminder> getReminderList() {
-		return reminderList;
-	}
-
-	public void setClockInList(List<ClockIn> actionsList) {
-		this.clockInList.clear();
-		this.clockInList = actionsList;
-	}
-
-	public void setReminderList(List<Reminder> reminderList) {
-		this.reminderList.clear();
-		this.reminderList = reminderList;
-	}
-
-	public void setCustomizedist(List<Customized> customizedList) {
-		this.customizedList.clear();
-		this.customizedList = customizedList;
-	}
-
-	public void addClockIn(ClockIn clockIn) {
+	public void addAction(Action action) {
 		// TODO 需要确保action唯一性，免得重复添加一样的action
-		if (clockIn != null) {
-			this.clockInList.add(clockIn);
-
-		}
-	}
-
-	public void addCustomized(Customized customized) {
-		// TODO 需要确保action唯一性，免得重复添加一样的action
-		if (customized != null) {
-			this.customizedList.add(customized);
-		}
-	}
-
-	public void addReminder(Reminder reminder) {
-		// TODO 需要确保action唯一性，免得重复添加一样的action
-		if (reminder != null) {
-			this.reminderList.add(reminder);
+		if (action != null) {
+			this.actionList.add(action);
 		}
 	}
 
@@ -119,19 +80,10 @@ public class Group {
 		return list;
 	}
 
-	public List<String> getAllVaildTextMsgKeyword() {
+	public List<String> getAllVaildKeyword(MsgTypeEnum type) {
 		List<String> list = new ArrayList<String>();
-		for (ClockIn clockIn : clockInList) {
-			List<String> cList = clockIn.getVaildKeywords();
-			if (StringUtil.ifNotNullOrEmpty(cList)) {
-				for (String word : clockIn.getVaildKeywords()) {
-					list.add(word);
-				}
-			}
-		}
-		for (Customized customized : customizedList) {
-			List<String> cList = customized.getVaildKeywords(MsgTypeEnum.TEXT
-					.getType());
+		for (Action action : actionList) {
+			List<String> cList = action.getVaildKeywords(type);
 			if (StringUtil.ifNotNullOrEmpty(cList)) {
 				for (String word : cList) {
 					list.add(word);
@@ -141,80 +93,51 @@ public class Group {
 		return list;
 	}
 
-	public List<String> getAllVaildSysMsgKeyword() {
-		List<String> list = new ArrayList<String>();
-		for (Customized customized : customizedList) {
-			List<String> cList = customized.getVaildKeywords(MsgTypeEnum.SYS
-					.getType());
-			if (StringUtil.ifNotNullOrEmpty(cList)) {
-				for (String word : cList) {
-					list.add(word);
-				}
-			}
-		}
-		return list;
-	}
-
-	public List<String> getAllVaildMediaMsgKeyword() {
-		List<String> list = new ArrayList<String>();
-		for (Customized customized : customizedList) {
-			List<String> cList = customized.getVaildKeywords(MsgTypeEnum.MEDIA
-					.getType());
-			if (StringUtil.ifNotNullOrEmpty(cList)) {
-				for (String word : cList) {
-					list.add(word);
-				}
-			}
-		}
-		return list;
-	}
-
-	public ClockIn getClockInFromVaildKeywords(String keyword) {
-		LogUtil.MSG.debug("getClockInFromVaildKeywords: groupNickName: "
+	public Action getActionFromVaildKeywords(String keyword, MsgTypeEnum type) {
+		LogUtil.MSG.debug("getActionFromVaildKeywords: groupNickName: "
 				+ groupNickName + ", keyword: " + keyword);
 		if (StringUtil.ifNotNullOrEmpty(keyword)) {
-			for (ClockIn clockIn : clockInList) {
-				List<String> cList = clockIn.getVaildKeywords();
+			for (Action action : actionList) {
+				List<String> cList = action.getVaildKeywords(type);
 				if (StringUtil.ifNotNullOrEmpty(cList)) {
 					for (String word : cList) {
 						if (keyword.equals(word)) {
 							LogUtil.MSG
-									.debug("getClockInFromVaildKeywords: return "
-											+ clockIn.getClass()
-													.getSimpleName());
-							return clockIn;
+									.debug("getActionFromVaildKeywords: return "
+											+ action.getClass().getSimpleName());
+							return action;
 						}
 					}
 				}
 			}
 		}
-		LogUtil.MSG.debug("getClockInFromVaildKeywords: return " + null);
+		LogUtil.MSG.debug("getActionFromVaildKeywords: return " + null);
 		return null;
 	}
 
-	public Customized getCustomizedFromVaildKeywords(String keyword) {
-		LogUtil.MSG.debug("getCustomizedFromVaildKeywords: groupNickName: "
-				+ groupNickName + ", keyword: " + keyword);
-		if (StringUtil.ifNotNullOrEmpty(keyword)) {
-			for (Customized customized : customizedList) {
-				for (int i = 0; i < MsgTypeEnum.values().length; i++) {
-					List<String> cList = customized
-							.getVaildKeywords(MsgTypeEnum.values()[i].getType());
-					if (StringUtil.ifNotNullOrEmpty(cList)) {
-						for (String word : cList) {
-							if (keyword.equals(word)) {
-								LogUtil.MSG
-										.debug("getCustomizedFromVaildKeywords: return "
-												+ customized.getClass()
-														.getSimpleName());
-								return customized;
-							}
-						}
-					}
-				}
-			}
-		}
-		LogUtil.MSG.debug("getCustomizedFromVaildKeywords: return " + null);
-		return null;
-	}
+	// public Action getActionFromVaildKeywords(String keyword) {
+	// LogUtil.MSG.debug("getActionFromVaildKeywords: groupNickName: "
+	// + groupNickName + ", keyword: " + keyword);
+	// if (StringUtil.ifNotNullOrEmpty(keyword)) {
+	// for (Action customized : actionList) {
+	// for (int i = 0; i < MsgTypeEnum.values().length; i++) {
+	// List<String> cList = customized
+	// .getVaildKeywords(MsgTypeEnum.values()[i]);
+	// if (StringUtil.ifNotNullOrEmpty(cList)) {
+	// for (String word : cList) {
+	// if (keyword.equals(word)) {
+	// LogUtil.MSG
+	// .debug("getCustomizedFromVaildKeywords: return "
+	// + customized.getClass()
+	// .getSimpleName());
+	// return customized;
+	// }
+	// }
+	// }
+	// }
+	// }
+	// }
+	// LogUtil.MSG.debug("getActionFromVaildKeywords: return " + null);
+	// return null;
+	// }
 }

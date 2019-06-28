@@ -1,4 +1,4 @@
-package org.androidtest.xiaoV.customized;
+package org.androidtest.xiaoV.action;
 
 import static org.androidtest.xiaoV.data.Constant.CURRENT_WEEK_SAVE_PATH;
 
@@ -6,10 +6,12 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.androidtest.xiaoV.Config;
-import org.androidtest.xiaoV.clockIn.ClockIn;
+import org.androidtest.xiaoV.action.ClockIn.ClockIn;
 import org.androidtest.xiaoV.data.Constant;
 import org.androidtest.xiaoV.data.Group;
 import org.androidtest.xiaoV.publicutil.LogUtil;
@@ -27,14 +29,14 @@ import cn.zhouyafeng.itchat4j.utils.enums.MsgTypeEnum;
  * @author caipeipei
  *
  */
-public class WeeklyReportClockInCustomized extends Customized {
+public class WeeklyReportAction extends Action {
 
 	private int dailyStep_weeklyLimitTimes = -1;
 	private int weeklySport_weeklyLimitTimes = -1;
 
 	private final int autoReportTime = 2359;
 
-	public WeeklyReportClockInCustomized(int dailyStep_weeklyLimitTimes,
+	public WeeklyReportAction(int dailyStep_weeklyLimitTimes,
 			int weeklySport_weeklyLimitTimes) {
 		setDailyStep_weeklyLimitTimes(dailyStep_weeklyLimitTimes);
 		setWeeklySport_weeklyLimitTimes(weeklySport_weeklyLimitTimes);
@@ -76,28 +78,34 @@ public class WeeklyReportClockInCustomized extends Customized {
 	}
 
 	@Override
-	public List<String> getVaildKeywords(String msgType) {
-		if (msgType.equals(MsgTypeEnum.TEXT.getType())) {
-			return Config.TEXT_MSG_WEEKLY_REPORT_VAILD_KEYWORD_LIST;
-		} else {
-			return new ArrayList<String>();
+	@SuppressWarnings("rawtypes")
+	public List<String> getVaildKeywords(MsgTypeEnum type) {// TODO
+															// 待重构，可以在基类里使用减少代码量
+		List<String> list = new ArrayList<String>();
+		Iterator iter = Config.WEEKLY_REPORT_VAILD_KEYWORD_LIST.entrySet()
+				.iterator();
+		while (iter.hasNext()) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			String vaildKeyword = (String) entry.getKey();
+			MsgTypeEnum vaildType = (MsgTypeEnum) entry.getValue();
+			if (vaildType == type) {
+				list.add(vaildKeyword);
+			}
 		}
-
+		return list;
 	}
 
 	@Override
-	public String handleClockInCustomized(Group g, BaseMsg msg) {
-		LogUtil.MSG
-				.debug("handleClockInCustomized: "
-						+ this.getClass().getSimpleName() + ", "
-						+ g.getGroupNickName());
+	public String action(Group g, BaseMsg msg) {
+		LogUtil.MSG.debug("action: " + this.getClass().getSimpleName() + ", "
+				+ g.getGroupNickName());
 		String result = null;
 		String currentGroupNickName = g.getGroupNickName();
 		File dir = new File(CURRENT_WEEK_SAVE_PATH.getAbsolutePath());
 		List<String> list = WechatTools
 				.getMemberListByGroupNickName2(currentGroupNickName);
-		LogUtil.MSG.debug("handleClockInCustomized: " + currentGroupNickName
-				+ "群成员:" + list.toString());
+		LogUtil.MSG.debug("action: " + currentGroupNickName + "群成员:"
+				+ list.toString());
 		String error404Name = "";
 		Group group = null;
 		for (Group gr : Constant.groupList) {
@@ -109,12 +117,12 @@ public class WeeklyReportClockInCustomized extends Customized {
 		if (group != null) {
 			boolean supportSport = false;
 			boolean supportStep = false;
-			if (group.getAllVaildTextMsgKeyword().contains(
-					Config.TEXT_MSG_WEEKLY_REPORT_VAILD_KEYWORD_LIST.get(0))) {
+			if (isMapContainsKey(Config.WEEKLY_SPORT_VAILD_KEYWORD_LIST,
+					group.getAllVaildKeyword(MsgTypeEnum.TEXT))) {
 				supportSport = true;
 			}
-			if (group.getAllVaildTextMsgKeyword().contains(
-					Config.TEXT_MSG_WEEKLY_REPORT_VAILD_KEYWORD_LIST.get(0))) {
+			if (isMapContainsKey(Config.DAILY_STEP_VAILD_KEYWORD_LIST,
+					group.getAllVaildKeyword(MsgTypeEnum.TEXT))) {
 				supportStep = true;
 			}
 			if (supportSport == true || supportStep == true) {
@@ -179,16 +187,19 @@ public class WeeklyReportClockInCustomized extends Customized {
 						result = result + "\n如下（微信名含非法字符无法统计: " + error404Name
 								+ "）";
 					}
-					List<ClockIn> clockIns = group.getClockInList();
-					for (ClockIn clockIn : clockIns) {
-						String content = clockIn.reportProcess(group);
-						if (StringUtil.ifNotNullOrEmpty(content)) {
-							content = "\n" + content;
-							result = result + content;
+
+					List<Action> actions = group.getActionList();
+					for (Action a : actions) {
+						if (a.getClass().getGenericSuperclass() == ClockIn.class) {
+							String content = a.report(group);
+							if (StringUtil.ifNotNullOrEmpty(content)) {
+								content = "\n" + content;
+								result = result + content;
+							}
 						}
 					}
 				} else {
-					LOG.error("handleClockInCustomized: " + "error:"
+					LogUtil.MSG.error("action: " + "error:"
 							+ dir.getAbsolutePath() + "非文件夹路径！");
 				}
 			}
@@ -197,31 +208,41 @@ public class WeeklyReportClockInCustomized extends Customized {
 		return result;
 	}
 
-	private String handleClockInCustomized(Group g) {
-		return handleClockInCustomized(g, null);
+	@Override
+	public String report(Group group) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
-	public boolean reportProcessRegularly(Group currentGroup) {
+	public boolean notify(Group currentGroup) {
 		Date currentDate = new Date();
 		int currentTime = Integer.parseInt(new SimpleDateFormat("HHmm")
 				.format(currentDate));
 		String currentTimeString = new SimpleDateFormat("HH:mm")
 				.format(currentDate);
-		LogUtil.MSG.debug("reportProcessRegularly: " + "currentTime: "
-				+ currentTime + ",autoReportTime: " + autoReportTime);
+		LogUtil.MSG.debug("notify: " + "currentTime: " + currentTime
+				+ ",autoReportTime: " + autoReportTime);
 		if (currentTime == autoReportTime) {
 			String currentGroupNickName = currentGroup.getGroupNickName();
 			MessageTools.sendGroupMsgByNickName(currentTimeString
 					+ "，开始进行本周播报。不达标的人需要发红包。", currentGroupNickName);
-			String result = handleClockInCustomized(currentGroup);
+			String result = action(currentGroup, null);
 			MessageTools.sendGroupMsgByNickName(result, currentGroupNickName);
-			LOG.info("reportProcessRegularly: "
-					+ currentGroup.getGroupNickName() + ": report " + true);
+			LogUtil.MSG.info("notify: " + currentGroup.getGroupNickName()
+					+ ": report " + true);
 			return true;
 		}
 		return false;
-
 	}
 
+	private boolean isMapContainsKey(Map<String, MsgTypeEnum> map,
+			List<String> list) {
+		for (String string : list) {
+			if (map.containsKey(string)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

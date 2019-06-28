@@ -1,4 +1,4 @@
-package org.androidtest.xiaoV.customized;
+package org.androidtest.xiaoV.action;
 
 import static org.androidtest.xiaoV.data.Constant.groupList;
 
@@ -6,7 +6,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.androidtest.xiaoV.Config;
 import org.androidtest.xiaoV.data.Group;
@@ -24,10 +26,10 @@ import cn.zhouyafeng.itchat4j.utils.enums.MsgTypeEnum;
  * @author caipeipei
  *
  */
-public class LifeRoutineClockInCustomized extends Customized {
-	protected Logger LOG = Logger.getLogger(LifeRoutineClockInCustomized.class);
+public class LifeRoutineAction extends Action {
+	protected Logger LOG = Logger.getLogger(LifeRoutineAction.class);
 
-	public LifeRoutineClockInCustomized(boolean life_routine_monrning_call,
+	public LifeRoutineAction(boolean life_routine_monrning_call,
 			int morning_call_time, boolean life_routine_sleep_remind,
 			int sleep_remind_time) {
 		setLife_routine_redpacket_count(0);
@@ -38,12 +40,21 @@ public class LifeRoutineClockInCustomized extends Customized {
 	}
 
 	@Override
-	public List<String> getVaildKeywords(String msgType) {
-		if (msgType.equals(MsgTypeEnum.SYS.getType())) {
-			return Config.SYS_MSG_LIFE_ROUTINE_VAILD_KEYWORD_LIST;
-		} else {
-			return new ArrayList<String>();
+	@SuppressWarnings("rawtypes")
+	public List<String> getVaildKeywords(MsgTypeEnum type) {// TODO
+															// 待重构，可以在基类里使用减少代码量
+		List<String> list = new ArrayList<String>();
+		Iterator iter = Config.LIFE_ROUTINE_VAILD_KEYWORD_LIST.entrySet()
+				.iterator();
+		while (iter.hasNext()) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			String vaildKeyword = (String) entry.getKey();
+			MsgTypeEnum vaildType = (MsgTypeEnum) entry.getValue();
+			if (vaildType == type) {
+				list.add(vaildKeyword);
+			}
 		}
+		return list;
 	}
 
 	private int life_routine_redpacket_count = -1;
@@ -125,9 +136,8 @@ public class LifeRoutineClockInCustomized extends Customized {
 	}
 
 	@Override
-	public String handleClockInCustomized(Group group, BaseMsg msg) {
-		LogUtil.MSG.debug("handleClockInCustomized: "
-				+ this.getClass().getSimpleName() + ", "
+	public String action(Group group, BaseMsg msg) {
+		LogUtil.MSG.debug("action: " + this.getClass().getSimpleName() + ", "
 				+ group.getGroupNickName());
 		int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 		if (hour <= getEndSleepListenerTime() / 100
@@ -155,13 +165,13 @@ public class LifeRoutineClockInCustomized extends Customized {
 					}
 					MessageTools.sendGroupMsgByNickName(message,
 							currentGroupNickName);
-					LogUtil.MSG.debug("handleClockInCustomized: " + "红包总数量: "
+					LogUtil.MSG.debug("action: " + "红包总数量: "
 							+ currentGroupRedPacketCount);
 					break;
 				}
 			}
 			if (currentGroupRedPacketCount != -1) {
-				LOG.error("handleClockInCustomized: " + "在grouplist里找不到名为"
+				LOG.error("action: " + "在grouplist里找不到名为"
 						+ currentGroupNickName + "的群。" + groupList);
 			}
 		}
@@ -169,16 +179,21 @@ public class LifeRoutineClockInCustomized extends Customized {
 	}
 
 	@Override
-	public boolean reportProcessRegularly(Group currentGroup) {
+	public String report(Group group) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean notify(Group currentGroup) {
 		Date currentDate = new Date();
 		int currentTime = Integer.parseInt(new SimpleDateFormat("HHmm")
 				.format(currentDate));
 		String currentTimeString = new SimpleDateFormat("HH:mm")
 				.format(currentDate);
 		if (isLife_routine_monrning_call()) {// 响应morningcall功能
-			LogUtil.MSG.debug("reportProcessRegularly: " + "currentTime: "
-					+ currentTime + ",getMorningCallTime: "
-					+ getMorningCallTime());
+			LogUtil.MSG.debug("notify: " + "currentTime: " + currentTime
+					+ ",getMorningCallTime: " + getMorningCallTime());
 			if (currentTime == getMorningCallTime()) {
 				String currentGroupNickName = currentGroup.getGroupNickName();
 				MessageTools.sendGroupMsgByNickName(currentTimeString
@@ -195,8 +210,8 @@ public class LifeRoutineClockInCustomized extends Customized {
 				}
 				MessageTools.sendGroupMsgByNickName(message,
 						currentGroupNickName);
-				LOG.info("reportProcessRegularly: "
-						+ currentGroup.getGroupNickName() + ": report " + true);
+				LOG.info("notify: " + currentGroup.getGroupNickName()
+						+ ": report " + true);
 				return true;
 			}
 		}
@@ -205,8 +220,8 @@ public class LifeRoutineClockInCustomized extends Customized {
 				MessageTools.sendGroupMsgByNickName(currentTimeString
 						+ "了，进入睡前时间，一天该收尾咯，大家睡前记得打卡噢。",
 						currentGroup.getGroupNickName());
-				LOG.info("reportProcessRegularly: "
-						+ currentGroup.getGroupNickName() + ": report " + true);
+				LOG.info("notify: " + currentGroup.getGroupNickName()
+						+ ": report " + true);
 				return true;
 			}
 		}
@@ -217,8 +232,8 @@ public class LifeRoutineClockInCustomized extends Customized {
 					+ getStartSleepListenerTime() + " ~ "
 					+ getEndSleepListenerTime(),
 					currentGroup.getGroupNickName());
-			LOG.info("reportProcessRegularly: "
-					+ currentGroup.getGroupNickName() + ": report " + true);
+			LOG.info("notify: " + currentGroup.getGroupNickName() + ": report "
+					+ true);
 			return true;
 		}
 		return false;
