@@ -181,8 +181,9 @@ public class WeeklyReportClockInCustomized extends Customized {
 					}
 					List<ClockIn> clockIns = group.getClockInList();
 					for (ClockIn clockIn : clockIns) {
-						String content = "\n" + clockIn.reportProcess(group);
-						if (content != null) {
+						String content = clockIn.reportProcess(group);
+						if (StringUtil.ifNotNullOrEmpty(content)) {
+							content = "\n" + content;
 							result = result + content;
 						}
 					}
