@@ -26,41 +26,6 @@ public class MessageHandler {
 	private static String robotCall = "@" + Core.getInstance().getNickName();
 
 	/**
-	 * 是否是指定的群消息文本内容
-	 * 
-	 * @param content
-	 * @return
-	 */
-	private static String returnSpecificKeywordFromTextMsg(Group group,
-			BaseMsg msg) {
-		LogUtil.MSG.debug("returnSpecificKeywordFromTextMsg: " + group + ", "
-				+ msg);
-		List<String> currentGroupVaildKeyword = new ArrayList<String>();
-		currentGroupVaildKeyword.addAll(group
-				.getAllVaildKeyword(MsgTypeEnum.TEXT));
-		String content = msg.getText();
-		String robotDisplayName = WechatTools
-				.getMemberDisplayNameByGroupNickName(group.getGroupNickName(),
-						msg.getToUserName());
-		if (StringUtil.ifNotNullOrEmpty(currentGroupVaildKeyword)) {
-			for (int i = 0; i < currentGroupVaildKeyword.size(); i++) {
-				if (content.startsWith(currentGroupVaildKeyword.get(i))
-						|| (content.contains(currentGroupVaildKeyword.get(i)) && content
-								.contains(robotCall))
-						|| (content.contains(currentGroupVaildKeyword.get(i)) && content
-								.contains(robotDisplayName))) {
-					LogUtil.MSG
-							.debug("returnSpecificKeywordFromTextMsg: return "
-									+ currentGroupVaildKeyword.get(i));
-					return currentGroupVaildKeyword.get(i);
-				}
-			}
-		}
-		LogUtil.MSG.debug("returnSpecificKeywordFromTextMsg: return " + null);
-		return null;
-	}
-
-	/**
 	 * 处理群消息
 	 * 
 	 * @param msg
@@ -101,6 +66,11 @@ public class MessageHandler {
 			}
 		}
 		return result;
+	}
+
+	private static boolean isCurrentMsgFromVaildGroup(Group group,
+			String currentGroupNickName) {
+		return group.getGroupNickName().equals(currentGroupNickName);
 	}
 
 	// public static String handleFunctionGroupMessage() {
@@ -354,92 +324,6 @@ public class MessageHandler {
 	// }
 
 	/**
-	 * 是否是指定的系统消息文本内容
-	 * 
-	 * @param content
-	 * @return
-	 */
-	private static String returnSpecificKeywordFromSysMsg(Group group,
-			BaseMsg msg) {
-		LogUtil.MSG.debug("returnSpecificKeywordFromSysMsg: " + group + ", "
-				+ msg);
-		List<String> currentGroupVaildKeyword = new ArrayList<String>();
-		currentGroupVaildKeyword.addAll(group
-				.getAllVaildKeyword(MsgTypeEnum.SYS));
-		String content = msg.getContent();
-		if (StringUtil.ifNotNullOrEmpty(currentGroupVaildKeyword)) {
-			for (int i = 0; i < currentGroupVaildKeyword.size(); i++) {
-				String expect = currentGroupVaildKeyword.get(i);
-				if (expect.contains(Constant.COLON_SPLIT)) {
-					if (content.contains(expect.split(Constant.COLON_SPLIT)[0])
-							&& content.contains(expect
-									.split(Constant.COLON_SPLIT)[1])) {
-						LogUtil.MSG
-								.debug("returnSpecificKeywordFromSysMsg: return "
-										+ currentGroupVaildKeyword.get(i));
-						return currentGroupVaildKeyword.get(i);
-					}
-				}
-				if (content.contains(expect)) {
-					LogUtil.MSG
-							.debug("returnSpecificKeywordFromSysMsg: return "
-									+ currentGroupVaildKeyword.get(i));
-					return currentGroupVaildKeyword.get(i);
-				}
-			}
-		}
-		LogUtil.MSG.debug("returnSpecificKeywordFromSysMsg: return " + null);
-		return null;
-	}
-
-	/**
-	 * 处理系统消息
-	 * 
-	 * @param msg
-	 * @return
-	 */
-	public static String sysMsgHandle(Group group, BaseMsg msg) {
-		LogUtil.MSG.debug("sysMsgHandle: " + group + ", " + msg);
-		String result = null;
-		String currentGroupNickName = WechatTools
-				.getGroupNickNameByGroupUserName(msg.getFromUserName());
-		if (isCurrentMsgFromVaildGroup(group, currentGroupNickName)) {
-			String keyword = returnSpecificKeywordFromSysMsg(group, msg);
-			Action action = group.getActionFromVaildKeywords(keyword,
-					MsgTypeEnum.SYS);
-			if (action != null && keyword != null) {
-				if (action.getVaildKeywords(MsgTypeEnum.SYS).contains(keyword)) {
-					action.action(group, msg);
-				}
-			}
-		}
-		return result;
-	}
-
-	// private static void handleUpdateContactSysMessage() {
-	// ILoginService loginService = new LoginServiceImpl();
-	// loginService.webWxGetContact();
-	// loginService.WebWxBatchGetContact();
-	// }
-
-	// private static int isVaildMediaTextKeyword(String content) {
-	// for (int i = 0; i < VAILD_MEDIA_TEXT_KEYWORD.size(); i++) {
-	// String expect = VAILD_MEDIA_TEXT_KEYWORD.get(i);
-	// if (expect.contains(Constant.COLON_SPLIT)) {
-	// if (content.contains(expect.split(Constant.COLON_SPLIT)[0])
-	// && content
-	// .contains(expect.split(Constant.COLON_SPLIT)[1])) {
-	// return i;
-	// }
-	// }
-	// if (content.contains(expect)) {
-	// return i;
-	// }
-	// }
-	// return -1;
-	// }
-
-	/**
 	 * 处理多媒体消息
 	 * 
 	 * @param msg
@@ -505,6 +389,103 @@ public class MessageHandler {
 		return null;
 	}
 
+	// private static void handleUpdateContactSysMessage() {
+	// ILoginService loginService = new LoginServiceImpl();
+	// loginService.webWxGetContact();
+	// loginService.WebWxBatchGetContact();
+	// }
+
+	// private static int isVaildMediaTextKeyword(String content) {
+	// for (int i = 0; i < VAILD_MEDIA_TEXT_KEYWORD.size(); i++) {
+	// String expect = VAILD_MEDIA_TEXT_KEYWORD.get(i);
+	// if (expect.contains(Constant.COLON_SPLIT)) {
+	// if (content.contains(expect.split(Constant.COLON_SPLIT)[0])
+	// && content
+	// .contains(expect.split(Constant.COLON_SPLIT)[1])) {
+	// return i;
+	// }
+	// }
+	// if (content.contains(expect)) {
+	// return i;
+	// }
+	// }
+	// return -1;
+	// }
+
+	/**
+	 * 是否是指定的系统消息文本内容
+	 * 
+	 * @param content
+	 * @return
+	 */
+	private static String returnSpecificKeywordFromSysMsg(Group group,
+			BaseMsg msg) {
+		LogUtil.MSG.debug("returnSpecificKeywordFromSysMsg: " + group + ", "
+				+ msg);
+		List<String> currentGroupVaildKeyword = new ArrayList<String>();
+		currentGroupVaildKeyword.addAll(group
+				.getAllVaildKeyword(MsgTypeEnum.SYS));
+		String content = msg.getContent();
+		if (StringUtil.ifNotNullOrEmpty(currentGroupVaildKeyword)) {
+			for (int i = 0; i < currentGroupVaildKeyword.size(); i++) {
+				String expect = currentGroupVaildKeyword.get(i);
+				if (expect.contains(Constant.COLON_SPLIT)) {
+					if (content.contains(expect.split(Constant.COLON_SPLIT)[0])
+							&& content.contains(expect
+									.split(Constant.COLON_SPLIT)[1])) {
+						LogUtil.MSG
+								.debug("returnSpecificKeywordFromSysMsg: return "
+										+ currentGroupVaildKeyword.get(i));
+						return currentGroupVaildKeyword.get(i);
+					}
+				}
+				if (content.contains(expect)) {
+					LogUtil.MSG
+							.debug("returnSpecificKeywordFromSysMsg: return "
+									+ currentGroupVaildKeyword.get(i));
+					return currentGroupVaildKeyword.get(i);
+				}
+			}
+		}
+		LogUtil.MSG.debug("returnSpecificKeywordFromSysMsg: return " + null);
+		return null;
+	}
+
+	/**
+	 * 是否是指定的群消息文本内容
+	 * 
+	 * @param content
+	 * @return
+	 */
+	private static String returnSpecificKeywordFromTextMsg(Group group,
+			BaseMsg msg) {
+		LogUtil.MSG.debug("returnSpecificKeywordFromTextMsg: " + group + ", "
+				+ msg);
+		List<String> currentGroupVaildKeyword = new ArrayList<String>();
+		currentGroupVaildKeyword.addAll(group
+				.getAllVaildKeyword(MsgTypeEnum.TEXT));
+		String content = msg.getText();
+		String robotDisplayName = WechatTools
+				.getMemberDisplayNameByGroupNickName(group.getGroupNickName(),
+						msg.getToUserName());
+		if (StringUtil.ifNotNullOrEmpty(currentGroupVaildKeyword)) {
+			for (int i = 0; i < currentGroupVaildKeyword.size(); i++) {
+				if (content.startsWith(currentGroupVaildKeyword.get(i))
+						|| (content.contains(currentGroupVaildKeyword.get(i)) && content
+								.contains(robotCall))
+						|| (content.contains(currentGroupVaildKeyword.get(i)) && content
+								.contains(robotDisplayName))) {
+					LogUtil.MSG
+							.debug("returnSpecificKeywordFromTextMsg: return "
+									+ currentGroupVaildKeyword.get(i));
+					return currentGroupVaildKeyword.get(i);
+				}
+			}
+		}
+		LogUtil.MSG.debug("returnSpecificKeywordFromTextMsg: return " + null);
+		return null;
+	}
+
 	// private static String handleCheckListUpdateMediaMessage(BaseMsg msg) {
 	// String result = null;
 	// int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
@@ -536,8 +517,27 @@ public class MessageHandler {
 	// return result;
 	// }
 
-	private static boolean isCurrentMsgFromVaildGroup(Group group,
-			String currentGroupNickName) {
-		return group.getGroupNickName().equals(currentGroupNickName);
+	/**
+	 * 处理系统消息
+	 * 
+	 * @param msg
+	 * @return
+	 */
+	public static String sysMsgHandle(Group group, BaseMsg msg) {
+		LogUtil.MSG.debug("sysMsgHandle: " + group + ", " + msg);
+		String result = null;
+		String currentGroupNickName = WechatTools
+				.getGroupNickNameByGroupUserName(msg.getFromUserName());
+		if (isCurrentMsgFromVaildGroup(group, currentGroupNickName)) {
+			String keyword = returnSpecificKeywordFromSysMsg(group, msg);
+			Action action = group.getActionFromVaildKeywords(keyword,
+					MsgTypeEnum.SYS);
+			if (action != null && keyword != null) {
+				if (action.getVaildKeywords(MsgTypeEnum.SYS).contains(keyword)) {
+					action.action(group, msg);
+				}
+			}
+		}
+		return result;
 	}
 }

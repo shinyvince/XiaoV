@@ -36,38 +36,6 @@ public class FileOperatorUtil {
 		}
 	}
 
-	public static File mkdirs(String dir) {
-		File file = new File(dir);
-		if (!file.exists()) {
-			file.mkdirs();
-		}
-		return file;
-	}
-
-	/**
-	 * 删除单个文件
-	 *
-	 * @param fileName
-	 *            要删除的文件的文件名
-	 * @return 单个文件删除成功返回true，否则返回false
-	 */
-	public static boolean deleteFile(String fileName) {
-		File file = new File(fileName);
-		// 如果文件路径所对应的文件存在，并且是一个文件，则直接删除
-		if (file.exists() && file.isFile()) {
-			if (file.delete()) {
-				// LogUtil.APP.debug("删除单个文件" + fileName + "成功！");
-				return true;
-			} else {
-				// LogUtil.APP.warn("删除单个文件" + fileName + "失败！");
-				return false;
-			}
-		} else {
-			// LogUtil.APP.warn("删除单个文件失败：" + fileName + "不存在！");
-			return false;
-		}
-	}
-
 	/**
 	 * 删除目录及目录下的文件
 	 *
@@ -115,6 +83,63 @@ public class FileOperatorUtil {
 		}
 	}
 
+	/**
+	 * 删除单个文件
+	 *
+	 * @param fileName
+	 *            要删除的文件的文件名
+	 * @return 单个文件删除成功返回true，否则返回false
+	 */
+	public static boolean deleteFile(String fileName) {
+		File file = new File(fileName);
+		// 如果文件路径所对应的文件存在，并且是一个文件，则直接删除
+		if (file.exists() && file.isFile()) {
+			if (file.delete()) {
+				// LogUtil.APP.debug("删除单个文件" + fileName + "成功！");
+				return true;
+			} else {
+				// LogUtil.APP.warn("删除单个文件" + fileName + "失败！");
+				return false;
+			}
+		} else {
+			// LogUtil.APP.warn("删除单个文件失败：" + fileName + "不存在！");
+			return false;
+		}
+	}
+
+	public static File mkdirs(String dir) {
+		File file = new File(dir);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		return file;
+	}
+
+	/**
+	 * 读取txt文件的内容
+	 *
+	 * @param file
+	 *            想要读取的文件对象
+	 * @return 返回文件内容
+	 */
+	public static String readFromFile(File file) {
+		if (!file.exists()) {
+			return null;
+		}
+		StringBuilder result = new StringBuilder();
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(file));// 构造一个BufferedReader类来读取文件
+			String s = null;
+			while ((s = br.readLine()) != null) {// 使用readLine方法，一次读一行
+				result.append(System.lineSeparator() + s);
+			}
+			br.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result.toString();
+	}
+
 	public static void releaceFile(String fromPCPath, String toPCPath)
 			throws IOException {
 		FileInputStream fis = new FileInputStream(fromPCPath);
@@ -154,30 +179,5 @@ public class FileOperatorUtil {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	/**
-	 * 读取txt文件的内容
-	 *
-	 * @param file
-	 *            想要读取的文件对象
-	 * @return 返回文件内容
-	 */
-	public static String readFromFile(File file) {
-		if (!file.exists()) {
-			return null;
-		}
-		StringBuilder result = new StringBuilder();
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(file));// 构造一个BufferedReader类来读取文件
-			String s = null;
-			while ((s = br.readLine()) != null) {// 使用readLine方法，一次读一行
-				result.append(System.lineSeparator() + s);
-			}
-			br.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return result.toString();
 	}
 }

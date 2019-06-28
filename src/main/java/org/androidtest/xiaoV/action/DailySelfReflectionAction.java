@@ -2,14 +2,11 @@ package org.androidtest.xiaoV.action;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
-import org.androidtest.xiaoV.Config;
 import org.androidtest.xiaoV.data.Constant;
 import org.androidtest.xiaoV.data.Group;
 import org.androidtest.xiaoV.publicutil.LogUtil;
@@ -26,154 +23,49 @@ import cn.zhouyafeng.itchat4j.utils.tools.DownloadTools;
  * @author caipeipei
  *
  */
+@SuppressWarnings("rawtypes")
 public class DailySelfReflectionAction extends Action {
 
+	/**
+	 * DailySelfReflectionAction类的合法参数及参数类型
+	 */
+	@SuppressWarnings("serial")
+	private static final Map<String, MsgTypeEnum> DAILY_SELF_REFLECTION_VAILD_KEYWORD_LIST = new HashMap<String, MsgTypeEnum>() {
+		{
+			put(Constant.DAILY_SELF_REFLECTION_DEFAULT_FILENAME_TEMPLATES
+					+ ":xlsx", MsgTypeEnum.MEDIA);
+			put(Constant.DAILY_SELF_REFLECTION_DEFAULT_FILENAME_TEMPLATES
+					+ ":xls", MsgTypeEnum.MEDIA);
+		}
+	};
 	private Map<String, File> whiteList = new HashMap<String, File>();
 	private int noonRemindTime = 1300;
 	private int nightRemindTime = 0112;
+
 	private boolean noonRemind = false;
 
 	public DailySelfReflectionAction(Map<String, File> whiteList,
-			int noonRemindTime, int nightRemindTime) {
+			boolean noonRemind) {
+		super(DAILY_SELF_REFLECTION_VAILD_KEYWORD_LIST);
 		setWhiteList(whiteList);
-		setNoonRemind(true);
-		setNightRemindTime(nightRemindTime);
-		setNoonRemindTime(noonRemindTime);
+		setNoonRemind(noonRemind);
 	}
 
 	public DailySelfReflectionAction(Map<String, File> whiteList,
 			int nightRemindTime) {
+		super(DAILY_SELF_REFLECTION_VAILD_KEYWORD_LIST);
 		setWhiteList(whiteList);
 		setNoonRemind(false);
 		setNightRemindTime(nightRemindTime);
 	}
 
 	public DailySelfReflectionAction(Map<String, File> whiteList,
-			boolean noonRemind) {
+			int noonRemindTime, int nightRemindTime) {
+		super(DAILY_SELF_REFLECTION_VAILD_KEYWORD_LIST);
 		setWhiteList(whiteList);
-		setNoonRemind(noonRemind);
-	}
-
-	@Override
-	@SuppressWarnings("rawtypes")
-	public List<String> getVaildKeywords(MsgTypeEnum type) {// TODO
-															// 待重构，可以在基类里使用减少代码量
-		List<String> list = new ArrayList<String>();
-		Iterator iter = Config.DAILY_SELF_REFLECTION_VAILD_KEYWORD_LIST
-				.entrySet().iterator();
-		while (iter.hasNext()) {
-			Map.Entry entry = (Map.Entry) iter.next();
-			String vaildKeyword = (String) entry.getKey();
-			MsgTypeEnum vaildType = (MsgTypeEnum) entry.getValue();
-			if (vaildType == type) {
-				list.add(vaildKeyword);
-			}
-		}
-		return list;
-	}
-
-	private int getNoonRemindTime() {
-		return noonRemindTime;
-	}
-
-	private void setNoonRemindTime(int noonRemindTime) {
-		LogUtil.MSG.debug("setNoonRemindTime: " + noonRemindTime);
-		if (noonRemindTime >= 0000 && noonRemindTime <= 2400) {
-			this.noonRemindTime = noonRemindTime;
-		} else {
-			throw new RuntimeException("setNoonRemindTime: out of range: "
-					+ noonRemindTime);
-		}
-
-	}
-
-	private int getNightRemindTime() {
-		return nightRemindTime;
-	}
-
-	private void setNightRemindTime(int nightRemindTime) {
-		LogUtil.MSG.debug("setNightRemindTime: " + nightRemindTime);
-		if (nightRemindTime >= 0000 && nightRemindTime <= 2400) {
-			this.nightRemindTime = nightRemindTime;
-		} else {
-			throw new RuntimeException("setNightRemindTime: out of range: "
-					+ nightRemindTime);
-		}
-
-	}
-
-	private boolean isNoonRemind() {
-		return noonRemind;
-	}
-
-	private void setNoonRemind(boolean noonRemind) {
-		LogUtil.MSG.debug("setNoonRemind: " + noonRemind);
-		this.noonRemind = noonRemind;
-
-	}
-
-	@SuppressWarnings("unused")
-	private Map<String, File> getWhiteList() {
-		return whiteList;
-	}
-
-	@SuppressWarnings("rawtypes")
-	private void setWhiteList(Map<String, File> whiteList) {
-		this.whiteList.clear();
-
-		Iterator iter = whiteList.entrySet().iterator();
-		while (iter.hasNext()) {
-			Map.Entry entry = (Map.Entry) iter.next();
-			String nickName = (String) entry.getKey();
-			File filePath = (File) entry.getValue();
-
-			File newfile = new File(Constant.DATA_SAVE_PATH.getAbsolutePath()
-					+ File.separator
-					+ createDailySelfReflectionFilename(nickName)
-					+ getFileExtension(filePath));
-			LogUtil.MSG.info("setWhiteList: " + newfile.getAbsolutePath());
-			if (filePath.exists() && filePath.isFile()) {// A路径存在
-				LogUtil.MSG.debug("setWhiteList: " + nickName + ", 预设的路径存在文件"
-						+ filePath.getAbsolutePath());
-				if (filePath.renameTo(newfile)) {
-					whiteList.remove(nickName);
-					whiteList.put(nickName, newfile);
-					LogUtil.MSG.debug("setWhiteList: " + nickName
-							+ ", 变更文件成功，新路径: " + newfile.getAbsolutePath());
-				} else {
-					whiteList.remove(nickName);
-					throw new RuntimeException("setWhiteList:"
-							+ filePath.getName() + "改名为" + newfile.getName()
-							+ "失败。将" + nickName + "移除。请检查原因。");
-				}
-			} else if (newfile.exists() && newfile.isFile()) {// A路径不在，新路径存在
-				whiteList.remove(nickName);
-				whiteList.put(nickName, newfile);
-				LogUtil.MSG.debug("setWhiteList: " + nickName
-						+ ", 预设的文件路径不存在，但在另一路径找到，更新文件成功: "
-						+ newfile.getAbsolutePath());
-			} else {
-				whiteList.remove(nickName);
-				throw new RuntimeException("setWhiteList:"
-						+ filePath.getAbsolutePath() + "路径不存在或者非文件，将"
-						+ nickName + "移除。请检查文件路径。");
-			}
-		}
-		this.whiteList = whiteList;
-	}
-
-	private String createDailySelfReflectionFilename(String nickName) {
-		String result = Constant.DAILY_SELF_REFLECTION_DEFAULT_FILENAME_TEMPLATES
-				+ " @" + nickName;
-		LogUtil.MSG.debug("createDailySelfReflectionFilename: " + result);
-		return result;
-	}
-
-	private String getFileExtension(File filePath) {
-		String result = filePath.getName().substring(
-				filePath.getName().lastIndexOf("."));
-		LogUtil.MSG.debug("getFileExtension: " + result);
-		return result;
+		setNoonRemind(true);
+		setNightRemindTime(nightRemindTime);
+		setNoonRemindTime(noonRemindTime);
 	}
 
 	@Override
@@ -220,10 +112,35 @@ public class DailySelfReflectionAction extends Action {
 		return result;
 	}
 
-	@Override
-	public String report(Group group) {
-		// TODO Auto-generated method stub
-		return null;
+	private String createDailySelfReflectionFilename(String nickName) {
+		String result = Constant.DAILY_SELF_REFLECTION_DEFAULT_FILENAME_TEMPLATES
+				+ " @" + nickName;
+		LogUtil.MSG.debug("createDailySelfReflectionFilename: " + result);
+		return result;
+	}
+
+	private String getFileExtension(File filePath) {
+		String result = filePath.getName().substring(
+				filePath.getName().lastIndexOf("."));
+		LogUtil.MSG.debug("getFileExtension: " + result);
+		return result;
+	}
+
+	private int getNightRemindTime() {
+		return nightRemindTime;
+	}
+
+	private int getNoonRemindTime() {
+		return noonRemindTime;
+	}
+
+	@SuppressWarnings("unused")
+	private Map<String, File> getWhiteList() {
+		return whiteList;
+	}
+
+	private boolean isNoonRemind() {
+		return noonRemind;
 	}
 
 	@Override
@@ -290,5 +207,83 @@ public class DailySelfReflectionAction extends Action {
 
 		}
 		return result;
+	}
+
+	@Override
+	public String report(Group group) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private void setNightRemindTime(int nightRemindTime) {
+		LogUtil.MSG.debug("setNightRemindTime: " + nightRemindTime);
+		if (nightRemindTime >= 0000 && nightRemindTime <= 2400) {
+			this.nightRemindTime = nightRemindTime;
+		} else {
+			throw new RuntimeException("setNightRemindTime: out of range: "
+					+ nightRemindTime);
+		}
+
+	}
+
+	private void setNoonRemind(boolean noonRemind) {
+		LogUtil.MSG.debug("setNoonRemind: " + noonRemind);
+		this.noonRemind = noonRemind;
+
+	}
+
+	private void setNoonRemindTime(int noonRemindTime) {
+		LogUtil.MSG.debug("setNoonRemindTime: " + noonRemindTime);
+		if (noonRemindTime >= 0000 && noonRemindTime <= 2400) {
+			this.noonRemindTime = noonRemindTime;
+		} else {
+			throw new RuntimeException("setNoonRemindTime: out of range: "
+					+ noonRemindTime);
+		}
+
+	}
+
+	private void setWhiteList(Map<String, File> whiteList) {
+		this.whiteList.clear();
+
+		Iterator iter = whiteList.entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			String nickName = (String) entry.getKey();
+			File filePath = (File) entry.getValue();
+
+			File newfile = new File(Constant.DATA_SAVE_PATH.getAbsolutePath()
+					+ File.separator
+					+ createDailySelfReflectionFilename(nickName)
+					+ getFileExtension(filePath));
+			LogUtil.MSG.info("setWhiteList: " + newfile.getAbsolutePath());
+			if (filePath.exists() && filePath.isFile()) {// A路径存在
+				LogUtil.MSG.debug("setWhiteList: " + nickName + ", 预设的路径存在文件"
+						+ filePath.getAbsolutePath());
+				if (filePath.renameTo(newfile)) {
+					whiteList.remove(nickName);
+					whiteList.put(nickName, newfile);
+					LogUtil.MSG.debug("setWhiteList: " + nickName
+							+ ", 变更文件成功，新路径: " + newfile.getAbsolutePath());
+				} else {
+					whiteList.remove(nickName);
+					throw new RuntimeException("setWhiteList:"
+							+ filePath.getName() + "改名为" + newfile.getName()
+							+ "失败。将" + nickName + "移除。请检查原因。");
+				}
+			} else if (newfile.exists() && newfile.isFile()) {// A路径不在，新路径存在
+				whiteList.remove(nickName);
+				whiteList.put(nickName, newfile);
+				LogUtil.MSG.debug("setWhiteList: " + nickName
+						+ ", 预设的文件路径不存在，但在另一路径找到，更新文件成功: "
+						+ newfile.getAbsolutePath());
+			} else {
+				whiteList.remove(nickName);
+				throw new RuntimeException("setWhiteList:"
+						+ filePath.getAbsolutePath() + "路径不存在或者非文件，将"
+						+ nickName + "移除。请检查文件路径。");
+			}
+		}
+		this.whiteList = whiteList;
 	}
 }

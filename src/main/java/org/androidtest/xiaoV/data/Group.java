@@ -17,50 +17,11 @@ public class Group {
 	private String admin;
 	private List<Action> actionList = new ArrayList<>();
 
-	@Override
-	public String toString() {
-		return "Group [groupId=" + groupId + ", groupNickName=" + groupNickName
-				+ ", admin=" + admin + ", actionList=" + actionList + "]";
-	}
-
 	public Group(String nickName, String admin) {
 		LogUtil.MSG.debug("Group: init: nickName: " + nickName + ",admin: "
 				+ admin);
 		groupNickName = nickName;
 		this.admin = admin;
-	}
-
-	public String getGroupId() {
-		return groupId;
-	}
-
-	public void setGroupId(String groupId) {
-		this.groupId = groupId;
-	}
-
-	public String getGroupNickName() {
-		return groupNickName;
-	}
-
-	public void setGroupNickName(String groupNickName) {
-		this.groupNickName = groupNickName;
-	}
-
-	public String getAdmin() {
-		return admin;
-	}
-
-	public void setAdmin(String admin) {
-		this.admin = admin;
-	}
-
-	public List<Action> getActionList() {
-		return actionList;
-	}
-
-	public void setActionList(List<Action> actionsList) {
-		this.actionList.clear();
-		this.actionList = actionsList;
 	}
 
 	public void addAction(Action action) {
@@ -70,27 +31,15 @@ public class Group {
 		}
 	}
 
-	public List<String> getMemberList() {
-		List<String> list = null;
-		if (groupId != null) {
-			list = WechatTools.getMemberListByGroupId2(groupId);
-		} else {
-			list = WechatTools.getMemberListByGroupNickName2(groupNickName);
-		}
-		return list;
-	}
-
-	public List<String> getAllVaildKeyword(MsgTypeEnum type) {
-		List<String> list = new ArrayList<String>();
-		for (Action action : actionList) {
-			List<String> cList = action.getVaildKeywords(type);
-			if (StringUtil.ifNotNullOrEmpty(cList)) {
-				for (String word : cList) {
-					list.add(word);
-				}
+	@SuppressWarnings("rawtypes")
+	public boolean containsAction(Class actionClass) {
+		List<Action> actions = getActionList();
+		for (Action action : actions) {
+			if (action.getClass() == actionClass) {
+				return true;
 			}
 		}
-		return list;
+		return false;
 	}
 
 	public Action getActionFromVaildKeywords(String keyword, MsgTypeEnum type) {
@@ -113,6 +62,68 @@ public class Group {
 		}
 		LogUtil.MSG.debug("getActionFromVaildKeywords: return " + null);
 		return null;
+	}
+
+	public List<Action> getActionList() {
+		return actionList;
+	}
+
+	public String getAdmin() {
+		return admin;
+	}
+
+	public List<String> getAllVaildKeyword(MsgTypeEnum type) {
+		List<String> list = new ArrayList<String>();
+		for (Action action : actionList) {
+			List<String> cList = action.getVaildKeywords(type);
+			if (StringUtil.ifNotNullOrEmpty(cList)) {
+				for (String word : cList) {
+					list.add(word);
+				}
+			}
+		}
+		return list;
+	}
+
+	public String getGroupId() {
+		return groupId;
+	}
+
+	public String getGroupNickName() {
+		return groupNickName;
+	}
+
+	public List<String> getMemberList() {
+		List<String> list = null;
+		if (groupId != null) {
+			list = WechatTools.getMemberListByGroupId2(groupId);
+		} else {
+			list = WechatTools.getMemberListByGroupNickName2(groupNickName);
+		}
+		return list;
+	}
+
+	public void setActionList(List<Action> actionsList) {
+		this.actionList.clear();
+		this.actionList = actionsList;
+	}
+
+	public void setAdmin(String admin) {
+		this.admin = admin;
+	}
+
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
+	}
+
+	public void setGroupNickName(String groupNickName) {
+		this.groupNickName = groupNickName;
+	}
+
+	@Override
+	public String toString() {
+		return "Group [groupId=" + groupId + ", groupNickName=" + groupNickName
+				+ ", admin=" + admin + ", actionList=" + actionList + "]";
 	}
 
 	// public Action getActionFromVaildKeywords(String keyword) {

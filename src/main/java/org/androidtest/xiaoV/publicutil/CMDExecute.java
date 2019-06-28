@@ -11,10 +11,25 @@ import java.io.InputStreamReader;
  */
 public final class CMDExecute {
 	/**
-	 * 私有构造函数，防止被new
+	 * 执行ADB命令行;返回命令执行结果，每行数据以“\r\n”
+	 *
+	 * @param deviceId
+	 * @param adbStr
+	 * @return
 	 */
-	private CMDExecute() {
+	public static String runADB(String deviceId, String adbStr) {
+		return runCMD("adb" + " -s " + deviceId + " " + adbStr);
+	}
 
+	/**
+	 * 执行ADB命令行;返回命令执行结果，每行数据以“\r\n”
+	 *
+	 * @param deviceId
+	 * @param adbStr
+	 * @return
+	 */
+	public static String runADBSynchronised(String deviceId, String adbStr) {
+		return runCMDSynchronised("adb" + " -s " + deviceId + " " + adbStr);
 	}
 
 	/**
@@ -102,28 +117,6 @@ public final class CMDExecute {
 	}
 
 	/**
-	 * 执行ADB命令行;返回命令执行结果，每行数据以“\r\n”
-	 *
-	 * @param deviceId
-	 * @param adbStr
-	 * @return
-	 */
-	public static String runADBSynchronised(String deviceId, String adbStr) {
-		return runCMDSynchronised("adb" + " -s " + deviceId + " " + adbStr);
-	}
-
-	/**
-	 * 执行ADB命令行;返回命令执行结果，每行数据以“\r\n”
-	 *
-	 * @param deviceId
-	 * @param adbStr
-	 * @return
-	 */
-	public static String runADB(String deviceId, String adbStr) {
-		return runCMD("adb" + " -s " + deviceId + " " + adbStr);
-	}
-
-	/**
 	 * 执行SHELL命令行;返回命令执行结果，每行数据以“\r\n”
 	 *
 	 * @param deviceId
@@ -136,6 +129,13 @@ public final class CMDExecute {
 		// } else {
 		// return runADB(deviceId, "shell " + shellStr);
 		// }
+	}
+
+	/**
+	 * 私有构造函数，防止被new
+	 */
+	private CMDExecute() {
+
 	}
 
 }

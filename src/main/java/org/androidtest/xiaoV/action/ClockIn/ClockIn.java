@@ -1,10 +1,17 @@
 package org.androidtest.xiaoV.action.ClockIn;
 
+import java.util.Map;
+
 import org.androidtest.xiaoV.action.Action;
 import org.androidtest.xiaoV.publicutil.LogUtil;
 
+import cn.zhouyafeng.itchat4j.utils.enums.MsgTypeEnum;
+
 public abstract class ClockIn extends Action {
-	public ClockIn(int weeklyLimitTimes) {
+	protected int weeklyLimitTimes = -1;
+
+	public ClockIn(Map<String, MsgTypeEnum> vailKeywordMap, int weeklyLimitTimes) {
+		super(vailKeywordMap);
 		if (weeklyLimitTimes >= 0) {
 			this.weeklyLimitTimes = weeklyLimitTimes;
 		} else {
@@ -13,8 +20,6 @@ public abstract class ClockIn extends Action {
 							+ weeklyLimitTimes);
 		}
 	}
-
-	protected int weeklyLimitTimes = -1;
 
 	protected int getWeeklyLimitTimes() {
 		return weeklyLimitTimes;

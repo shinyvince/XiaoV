@@ -60,244 +60,244 @@ public class BaseMsg implements Serializable {
 	private String oriContent;
 	private String fileSize;
 
-	public int getSubMsgType() {
-		return subMsgType;
-	}
-
-	public void setSubMsgType(int subMsgType) {
-		this.subMsgType = subMsgType;
-	}
-
-	public int getVoiceLength() {
-		return voiceLength;
-	}
-
-	public void setVoiceLength(int voiceLength) {
-		this.voiceLength = voiceLength;
-	}
-
-	public String getFileName() {
-		return fileName;
-	}
-
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
-	}
-
-	public int getImgHeight() {
-		return imgHeight;
-	}
-
-	public void setImgHeight(int imgHeight) {
-		this.imgHeight = imgHeight;
-	}
-
-	public String getToUserName() {
-		return toUserName;
-	}
-
-	public void setToUserName(String toUserName) {
-		this.toUserName = toUserName;
-	}
-
-	public int getHasProductId() {
-		return hasProductId;
-	}
-
-	public void setHasProductId(int hasProductId) {
-		this.hasProductId = hasProductId;
-	}
-
-	public int getImgStatus() {
-		return imgStatus;
-	}
-
-	public void setImgStatus(int imgStatus) {
-		this.imgStatus = imgStatus;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	public int getImgWidth() {
-		return imgWidth;
-	}
-
-	public void setImgWidth(int imgWidth) {
-		this.imgWidth = imgWidth;
-	}
-
-	public int getForwardFlag() {
-		return forwardFlag;
-	}
-
-	public void setForwardFlag(int forwardFlag) {
-		this.forwardFlag = forwardFlag;
-	}
-
-	public int getStatus() {
-		return status;
-	}
-
-	public void setStatus(int status) {
-		this.status = status;
-	}
-
-	public String getTicket() {
-		return Ticket;
-	}
-
-	public void setTicket(String ticket) {
-		Ticket = ticket;
-	}
-
-	public RecommendInfo getRecommendInfo() {
-		return recommendInfo;
-	}
-
-	public void setRecommendInfo(RecommendInfo recommendInfo) {
-		this.recommendInfo = recommendInfo;
-	}
-
-	public long getCreateTime() {
-		return createTime;
-	}
-
-	public void setCreateTime(long createTime) {
-		this.createTime = createTime;
-	}
-
-	public String getNewMsgId() {
-		return newMsgId;
-	}
-
-	public void setNewMsgId(String newMsgId) {
-		this.newMsgId = newMsgId;
-	}
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	public int getMsgType() {
-		return msgType;
-	}
-
-	public void setMsgType(int msgType) {
-		this.msgType = msgType;
-	}
-
-	public boolean isGroupMsg() {
-		return groupMsg;
-	}
-
-	public void setGroupMsg(boolean groupMsg) {
-		this.groupMsg = groupMsg;
-	}
-
-	public String getMsgId() {
-		return msgId;
-	}
-
-	public void setMsgId(String msgId) {
-		this.msgId = msgId;
-	}
-
-	public int getStatusNotifyCode() {
-		return statusNotifyCode;
-	}
-
-	public void setStatusNotifyCode(int statusNotifyCode) {
-		this.statusNotifyCode = statusNotifyCode;
-	}
-
 	public AppInfo getAppInfo() {
 		return appInfo;
-	}
-
-	public void setAppInfo(AppInfo appInfo) {
-		this.appInfo = appInfo;
 	}
 
 	public int getAppMsgType() {
 		return appMsgType;
 	}
 
-	public void setAppMsgType(int appMsgType) {
-		this.appMsgType = appMsgType;
-	}
-
-	public String getType() {
-		return Type;
-	}
-
-	public void setType(String type) {
-		Type = type;
-	}
-
-	public int getPlayLength() {
-		return playLength;
-	}
-
-	public void setPlayLength(int playLength) {
-		this.playLength = playLength;
-	}
-
-	public String getMediaId() {
-		return mediaId;
-	}
-
-	public void setMediaId(String mediaId) {
-		this.mediaId = mediaId;
-	}
-
 	public String getContent() {
 		return content;
 	}
 
-	public void setContent(String content) {
-		this.content = content;
+	public long getCreateTime() {
+		return createTime;
 	}
 
-	public String getStatusNotifyUserName() {
-		return statusNotifyUserName;
-	}
-
-	public void setStatusNotifyUserName(String statusNotifyUserName) {
-		this.statusNotifyUserName = statusNotifyUserName;
-	}
-
-	public String getFromUserName() {
-		return fromUserName;
-	}
-
-	public void setFromUserName(String fromUserName) {
-		this.fromUserName = fromUserName;
-	}
-
-	public String getOriContent() {
-		return oriContent;
-	}
-
-	public void setOriContent(String oriContent) {
-		this.oriContent = oriContent;
+	public String getFileName() {
+		return fileName;
 	}
 
 	public String getFileSize() {
 		return fileSize;
 	}
 
+	public int getForwardFlag() {
+		return forwardFlag;
+	}
+
+	public String getFromUserName() {
+		return fromUserName;
+	}
+
+	public int getHasProductId() {
+		return hasProductId;
+	}
+
+	public int getImgHeight() {
+		return imgHeight;
+	}
+
+	public int getImgStatus() {
+		return imgStatus;
+	}
+
+	public int getImgWidth() {
+		return imgWidth;
+	}
+
+	public String getMediaId() {
+		return mediaId;
+	}
+
+	public String getMsgId() {
+		return msgId;
+	}
+
+	public int getMsgType() {
+		return msgType;
+	}
+
+	public String getNewMsgId() {
+		return newMsgId;
+	}
+
+	public String getOriContent() {
+		return oriContent;
+	}
+
+	public int getPlayLength() {
+		return playLength;
+	}
+
+	public RecommendInfo getRecommendInfo() {
+		return recommendInfo;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public int getStatusNotifyCode() {
+		return statusNotifyCode;
+	}
+
+	public String getStatusNotifyUserName() {
+		return statusNotifyUserName;
+	}
+
+	public int getSubMsgType() {
+		return subMsgType;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public String getTicket() {
+		return Ticket;
+	}
+
+	public String getToUserName() {
+		return toUserName;
+	}
+
+	public String getType() {
+		return Type;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public int getVoiceLength() {
+		return voiceLength;
+	}
+
+	public boolean isGroupMsg() {
+		return groupMsg;
+	}
+
+	public void setAppInfo(AppInfo appInfo) {
+		this.appInfo = appInfo;
+	}
+
+	public void setAppMsgType(int appMsgType) {
+		this.appMsgType = appMsgType;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public void setCreateTime(long createTime) {
+		this.createTime = createTime;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
 	public void setFileSize(String fileSize) {
 		this.fileSize = fileSize;
+	}
+
+	public void setForwardFlag(int forwardFlag) {
+		this.forwardFlag = forwardFlag;
+	}
+
+	public void setFromUserName(String fromUserName) {
+		this.fromUserName = fromUserName;
+	}
+
+	public void setGroupMsg(boolean groupMsg) {
+		this.groupMsg = groupMsg;
+	}
+
+	public void setHasProductId(int hasProductId) {
+		this.hasProductId = hasProductId;
+	}
+
+	public void setImgHeight(int imgHeight) {
+		this.imgHeight = imgHeight;
+	}
+
+	public void setImgStatus(int imgStatus) {
+		this.imgStatus = imgStatus;
+	}
+
+	public void setImgWidth(int imgWidth) {
+		this.imgWidth = imgWidth;
+	}
+
+	public void setMediaId(String mediaId) {
+		this.mediaId = mediaId;
+	}
+
+	public void setMsgId(String msgId) {
+		this.msgId = msgId;
+	}
+
+	public void setMsgType(int msgType) {
+		this.msgType = msgType;
+	}
+
+	public void setNewMsgId(String newMsgId) {
+		this.newMsgId = newMsgId;
+	}
+
+	public void setOriContent(String oriContent) {
+		this.oriContent = oriContent;
+	}
+
+	public void setPlayLength(int playLength) {
+		this.playLength = playLength;
+	}
+
+	public void setRecommendInfo(RecommendInfo recommendInfo) {
+		this.recommendInfo = recommendInfo;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
+	public void setStatusNotifyCode(int statusNotifyCode) {
+		this.statusNotifyCode = statusNotifyCode;
+	}
+
+	public void setStatusNotifyUserName(String statusNotifyUserName) {
+		this.statusNotifyUserName = statusNotifyUserName;
+	}
+
+	public void setSubMsgType(int subMsgType) {
+		this.subMsgType = subMsgType;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public void setTicket(String ticket) {
+		Ticket = ticket;
+	}
+
+	public void setToUserName(String toUserName) {
+		this.toUserName = toUserName;
+	}
+
+	public void setType(String type) {
+		Type = type;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public void setVoiceLength(int voiceLength) {
+		this.voiceLength = voiceLength;
 	}
 
 	@Override

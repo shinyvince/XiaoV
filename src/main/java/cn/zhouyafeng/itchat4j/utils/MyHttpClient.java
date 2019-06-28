@@ -44,12 +44,6 @@ public class MyHttpClient {
 				.build();
 	}
 
-	private Logger logger = Logger.getLogger("MyHttpClient");
-
-	private MyHttpClient() {
-
-	}
-
 	public static String getCookie(String name) {
 		List<Cookie> cookies = cookieStore.getCookies();
 		for (Cookie cookie : cookies) {
@@ -59,6 +53,10 @@ public class MyHttpClient {
 		}
 		return null;
 
+	}
+
+	public static CloseableHttpClient getHttpClient() {
+		return httpClient;
 	}
 
 	/**
@@ -79,8 +77,10 @@ public class MyHttpClient {
 		return instance;
 	}
 
-	public static CloseableHttpClient getHttpClient() {
-		return httpClient;
+	private Logger logger = Logger.getLogger("MyHttpClient");
+
+	private MyHttpClient() {
+
 	}
 
 	/**

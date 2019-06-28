@@ -3,14 +3,11 @@ package org.androidtest.xiaoV.action;
 import static org.androidtest.xiaoV.data.Constant.groupList;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
-import org.androidtest.xiaoV.Config;
 import org.androidtest.xiaoV.data.Group;
 import org.androidtest.xiaoV.publicutil.LogUtil;
 import org.apache.log4j.Logger;
@@ -27,35 +24,18 @@ import cn.zhouyafeng.itchat4j.utils.enums.MsgTypeEnum;
  *
  */
 public class LifeRoutineAction extends Action {
-	protected Logger LOG = Logger.getLogger(LifeRoutineAction.class);
-
-	public LifeRoutineAction(boolean life_routine_monrning_call,
-			int morning_call_time, boolean life_routine_sleep_remind,
-			int sleep_remind_time) {
-		setLife_routine_redpacket_count(0);
-		setLife_routine_monrning_call(life_routine_monrning_call,
-				morning_call_time);
-		setLife_routine_sleep_remind(life_routine_sleep_remind,
-				sleep_remind_time);
-	}
-
-	@Override
-	@SuppressWarnings("rawtypes")
-	public List<String> getVaildKeywords(MsgTypeEnum type) {// TODO
-															// 待重构，可以在基类里使用减少代码量
-		List<String> list = new ArrayList<String>();
-		Iterator iter = Config.LIFE_ROUTINE_VAILD_KEYWORD_LIST.entrySet()
-				.iterator();
-		while (iter.hasNext()) {
-			Map.Entry entry = (Map.Entry) iter.next();
-			String vaildKeyword = (String) entry.getKey();
-			MsgTypeEnum vaildType = (MsgTypeEnum) entry.getValue();
-			if (vaildType == type) {
-				list.add(vaildKeyword);
-			}
+	/**
+	 * LifeRoutineClockInAction类的合法参数及参数类型
+	 */
+	@SuppressWarnings("serial")
+	private static final Map<String, MsgTypeEnum> LIFE_ROUTINE_VAILD_KEYWORD_LIST = new HashMap<String, MsgTypeEnum>() {
+		{
+			put("收到红包，请在手机上查看", MsgTypeEnum.SYS);
+			put("Red packet received. View on phone.", MsgTypeEnum.SYS);
 		}
-		return list;
-	}
+	};
+
+	protected Logger LOG = Logger.getLogger(LifeRoutineAction.class);
 
 	private int life_routine_redpacket_count = -1;
 	private boolean life_routine_monrning_call = false;
@@ -64,75 +44,18 @@ public class LifeRoutineAction extends Action {
 	private int sleep_remind_time = -1;
 
 	private final int startSleepListenerTime = 2100;
+
 	private final int endSleepListenerTime = 0400;
 
-	private int getStartSleepListenerTime() {
-		return startSleepListenerTime;
-	}
-
-	private int getEndSleepListenerTime() {
-		return endSleepListenerTime;
-	}
-
-	private int getMorningCallTime() {
-		return morning_call_time;
-	}
-
-	private int getSleepRemindTime() {
-		return sleep_remind_time;
-	}
-
-	private boolean isLife_routine_monrning_call() {
-		return life_routine_monrning_call;
-	}
-
-	private void setLife_routine_monrning_call(
-			boolean life_routine_monrning_call, int morning_call_time) {
-		LogUtil.MSG.debug("setLife_routine_monrning_call: args: "
-				+ life_routine_monrning_call + ", " + morning_call_time);
-		this.life_routine_monrning_call = life_routine_monrning_call;
-		if (life_routine_monrning_call) {
-			if (0 <= morning_call_time && morning_call_time <= 2400) {
-				this.morning_call_time = morning_call_time;
-			} else {
-				// LOG.error("setLife_routine_monrning_call: value is out of range: "
-				// + morning_call_time);
-				throw new RuntimeException(
-						"setLife_routine_monrning_call: value is out of range: "
-								+ morning_call_time);
-			}
-
-		}
-	}
-
-	private boolean isLife_routine_sleep_remind() {
-		return life_routine_sleep_remind;
-	}
-
-	private void setLife_routine_sleep_remind(
-			boolean life_routine_sleep_remind, int sleep_remind_time) {
-		LogUtil.MSG.debug("setLife_routine_sleep_remind: args: "
-				+ life_routine_sleep_remind + ", " + sleep_remind_time);
-		this.life_routine_sleep_remind = life_routine_sleep_remind;
-		if (life_routine_sleep_remind) {
-			if (0 <= sleep_remind_time && sleep_remind_time <= 2400) {
-				this.sleep_remind_time = sleep_remind_time;
-			} else {
-				throw new RuntimeException(
-						"setLife_routine_sleep_remind: value is out of range: "
-								+ sleep_remind_time);
-			}
-
-		}
-	}
-
-	private int getLife_routine_redpacket_count() {
-		return life_routine_redpacket_count;
-	}
-
-	private void setLife_routine_redpacket_count(
-			int life_routine_redpacket_count) {
-		this.life_routine_redpacket_count = life_routine_redpacket_count;
+	public LifeRoutineAction(boolean life_routine_monrning_call,
+			int morning_call_time, boolean life_routine_sleep_remind,
+			int sleep_remind_time) {
+		super(LIFE_ROUTINE_VAILD_KEYWORD_LIST);
+		setLife_routine_redpacket_count(0);
+		setLife_routine_monrning_call(life_routine_monrning_call,
+				morning_call_time);
+		setLife_routine_sleep_remind(life_routine_sleep_remind,
+				sleep_remind_time);
 	}
 
 	@Override
@@ -178,10 +101,32 @@ public class LifeRoutineAction extends Action {
 		return null;
 	}
 
-	@Override
-	public String report(Group group) {
-		// TODO Auto-generated method stub
-		return null;
+	private int getEndSleepListenerTime() {
+		return endSleepListenerTime;
+	}
+
+	private int getLife_routine_redpacket_count() {
+		return life_routine_redpacket_count;
+	}
+
+	private int getMorningCallTime() {
+		return morning_call_time;
+	}
+
+	private int getSleepRemindTime() {
+		return sleep_remind_time;
+	}
+
+	private int getStartSleepListenerTime() {
+		return startSleepListenerTime;
+	}
+
+	private boolean isLife_routine_monrning_call() {
+		return life_routine_monrning_call;
+	}
+
+	private boolean isLife_routine_sleep_remind() {
+		return life_routine_sleep_remind;
 	}
 
 	@Override
@@ -237,5 +182,52 @@ public class LifeRoutineAction extends Action {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public String report(Group group) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private void setLife_routine_monrning_call(
+			boolean life_routine_monrning_call, int morning_call_time) {
+		LogUtil.MSG.debug("setLife_routine_monrning_call: args: "
+				+ life_routine_monrning_call + ", " + morning_call_time);
+		this.life_routine_monrning_call = life_routine_monrning_call;
+		if (life_routine_monrning_call) {
+			if (0 <= morning_call_time && morning_call_time <= 2400) {
+				this.morning_call_time = morning_call_time;
+			} else {
+				// LOG.error("setLife_routine_monrning_call: value is out of range: "
+				// + morning_call_time);
+				throw new RuntimeException(
+						"setLife_routine_monrning_call: value is out of range: "
+								+ morning_call_time);
+			}
+
+		}
+	}
+
+	private void setLife_routine_redpacket_count(
+			int life_routine_redpacket_count) {
+		this.life_routine_redpacket_count = life_routine_redpacket_count;
+	}
+
+	private void setLife_routine_sleep_remind(
+			boolean life_routine_sleep_remind, int sleep_remind_time) {
+		LogUtil.MSG.debug("setLife_routine_sleep_remind: args: "
+				+ life_routine_sleep_remind + ", " + sleep_remind_time);
+		this.life_routine_sleep_remind = life_routine_sleep_remind;
+		if (life_routine_sleep_remind) {
+			if (0 <= sleep_remind_time && sleep_remind_time <= 2400) {
+				this.sleep_remind_time = sleep_remind_time;
+			} else {
+				throw new RuntimeException(
+						"setLife_routine_sleep_remind: value is out of range: "
+								+ sleep_remind_time);
+			}
+
+		}
 	}
 }

@@ -22,21 +22,6 @@ public class ApiManager implements IMsgHandlerFace {
 
 	Logger LOG = Logger.getLogger(ApiManager.class);
 
-	@Override
-	public String textMsgHandle(BaseMsg msg) {
-		LogUtil.MSG.debug("textMsgHandle: ");
-		String result = null;
-		Group group = isVaildWhiteGroup(msg);
-		if (group != null) {// 只处理指定群
-			result = MessageHandler.groupMsgHandle(group, msg);
-			// } else if (isVaildWhiteAdmin(msg)) {
-			// result = MessageHandler.userMsgHandle(msg);
-		} else {
-			LOG.info("textMsgHandle: " + "非法消息: " + msg + "，消息过滤不处理");
-		}
-		return result;
-	}
-
 	/**
 	 * 是否是白名单里的群
 	 * 
@@ -58,6 +43,19 @@ public class ApiManager implements IMsgHandlerFace {
 		}
 		LogUtil.MSG.debug("isVaildWhiteGroup: false, return null");
 		return null;
+	}
+
+	@Override
+	public String mediaMsgHandle(BaseMsg msg) {
+		LogUtil.MSG.debug("mediaMsgHandle: ");
+		String result = null;
+		final String text = msg.getContent();
+		LOG.info("多媒体消息:" + text);
+		Group group = isVaildWhiteGroup(msg);
+		if (group != null) {// 只处理指定群
+			result = MessageHandler.mediaMsgHandle(group, msg);
+		}
+		return result;
 	}
 
 	// /**
@@ -87,6 +85,11 @@ public class ApiManager implements IMsgHandlerFace {
 	// }
 
 	@Override
+	public String nameCardMsgHandle(BaseMsg msg) {
+		return null;
+	}
+
+	@Override
 	public String picMsgHandle(BaseMsg msg) {
 		LogUtil.MSG.debug("picMsgHandle: ");
 		String nickName, currentGroupNickName = null;
@@ -107,7 +110,33 @@ public class ApiManager implements IMsgHandlerFace {
 	}
 
 	@Override
-	public String voiceMsgHandle(BaseMsg msg) {
+	public void sysMsgHandle(BaseMsg msg) {
+		LogUtil.MSG.debug("sysMsgHandle: ");
+		final String text = msg.getContent();
+		Group group = isVaildWhiteGroup(msg);
+		if (group != null) {// 只处理指定群
+			LOG.info("系统消息:" + text);
+			MessageHandler.sysMsgHandle(group, msg);
+		}
+	}
+
+	@Override
+	public String textMsgHandle(BaseMsg msg) {
+		LogUtil.MSG.debug("textMsgHandle: ");
+		String result = null;
+		Group group = isVaildWhiteGroup(msg);
+		if (group != null) {// 只处理指定群
+			result = MessageHandler.groupMsgHandle(group, msg);
+			// } else if (isVaildWhiteAdmin(msg)) {
+			// result = MessageHandler.userMsgHandle(msg);
+		} else {
+			LOG.info("textMsgHandle: " + "非法消息: " + msg + "，消息过滤不处理");
+		}
+		return result;
+	}
+
+	@Override
+	public String verifyAddFriendMsgHandle(BaseMsg msg) {
 		return null;
 	}
 
@@ -133,37 +162,8 @@ public class ApiManager implements IMsgHandlerFace {
 	}
 
 	@Override
-	public String nameCardMsgHandle(BaseMsg msg) {
+	public String voiceMsgHandle(BaseMsg msg) {
 		return null;
-	}
-
-	@Override
-	public void sysMsgHandle(BaseMsg msg) {
-		LogUtil.MSG.debug("sysMsgHandle: ");
-		final String text = msg.getContent();
-		Group group = isVaildWhiteGroup(msg);
-		if (group != null) {// 只处理指定群
-			LOG.info("系统消息:" + text);
-			MessageHandler.sysMsgHandle(group, msg);
-		}
-	}
-
-	@Override
-	public String verifyAddFriendMsgHandle(BaseMsg msg) {
-		return null;
-	}
-
-	@Override
-	public String mediaMsgHandle(BaseMsg msg) {
-		LogUtil.MSG.debug("mediaMsgHandle: ");
-		String result = null;
-		final String text = msg.getContent();
-		LOG.info("多媒体消息:" + text);
-		Group group = isVaildWhiteGroup(msg);
-		if (group != null) {// 只处理指定群
-			result = MessageHandler.mediaMsgHandle(group, msg);
-		}
-		return result;
 	}
 
 }

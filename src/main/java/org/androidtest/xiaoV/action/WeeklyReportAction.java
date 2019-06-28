@@ -4,14 +4,14 @@ import static org.androidtest.xiaoV.data.Constant.CURRENT_WEEK_SAVE_PATH;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.androidtest.xiaoV.Config;
 import org.androidtest.xiaoV.action.ClockIn.ClockIn;
+import org.androidtest.xiaoV.action.ClockIn.DailyStepClockIn;
+import org.androidtest.xiaoV.action.ClockIn.WeeklySportClockIn;
 import org.androidtest.xiaoV.data.Constant;
 import org.androidtest.xiaoV.data.Group;
 import org.androidtest.xiaoV.publicutil.LogUtil;
@@ -31,68 +31,26 @@ import cn.zhouyafeng.itchat4j.utils.enums.MsgTypeEnum;
  */
 public class WeeklyReportAction extends Action {
 
+	/**
+	 * WeeklyReportClockInAction类的合法参数及参数类型
+	 */
+	@SuppressWarnings("serial")
+	private static final Map<String, MsgTypeEnum> WEEKLY_REPORT_VAILD_KEYWORD_LIST = new HashMap<String, MsgTypeEnum>() {
+		{
+			put("周报", MsgTypeEnum.TEXT);
+		}
+	};
 	private int dailyStep_weeklyLimitTimes = -1;
+
 	private int weeklySport_weeklyLimitTimes = -1;
 
 	private final int autoReportTime = 2359;
 
 	public WeeklyReportAction(int dailyStep_weeklyLimitTimes,
 			int weeklySport_weeklyLimitTimes) {
+		super(WEEKLY_REPORT_VAILD_KEYWORD_LIST);
 		setDailyStep_weeklyLimitTimes(dailyStep_weeklyLimitTimes);
 		setWeeklySport_weeklyLimitTimes(weeklySport_weeklyLimitTimes);
-	}
-
-	private int getDailyStep_weeklyLimitTimes() {
-		return dailyStep_weeklyLimitTimes;
-	}
-
-	private void setDailyStep_weeklyLimitTimes(int dailyStep_weeklyLimitTimes) {
-		LogUtil.MSG.debug("setDailyStep_weeklyLimitTimes: "
-				+ dailyStep_weeklyLimitTimes);
-		if (dailyStep_weeklyLimitTimes >= 0) {
-			this.dailyStep_weeklyLimitTimes = dailyStep_weeklyLimitTimes;
-		} else {
-			throw new RuntimeException(
-					"setDailyStep_weeklyLimitTimes: out of range: "
-							+ dailyStep_weeklyLimitTimes);
-		}
-
-	}
-
-	private int getWeeklySport_weeklyLimitTimes() {
-		return weeklySport_weeklyLimitTimes;
-	}
-
-	private void setWeeklySport_weeklyLimitTimes(
-			int weeklySport_weeklyLimitTimes) {
-		LogUtil.MSG.debug("setWeeklySport_weeklyLimitTimes: "
-				+ weeklySport_weeklyLimitTimes);
-		if (weeklySport_weeklyLimitTimes >= 0) {
-			this.weeklySport_weeklyLimitTimes = weeklySport_weeklyLimitTimes;
-		} else {
-			throw new RuntimeException(
-					"setWeeklySport_weeklyLimitTimes: out of range: "
-							+ weeklySport_weeklyLimitTimes);
-		}
-
-	}
-
-	@Override
-	@SuppressWarnings("rawtypes")
-	public List<String> getVaildKeywords(MsgTypeEnum type) {// TODO
-															// 待重构，可以在基类里使用减少代码量
-		List<String> list = new ArrayList<String>();
-		Iterator iter = Config.WEEKLY_REPORT_VAILD_KEYWORD_LIST.entrySet()
-				.iterator();
-		while (iter.hasNext()) {
-			Map.Entry entry = (Map.Entry) iter.next();
-			String vaildKeyword = (String) entry.getKey();
-			MsgTypeEnum vaildType = (MsgTypeEnum) entry.getValue();
-			if (vaildType == type) {
-				list.add(vaildKeyword);
-			}
-		}
-		return list;
 	}
 
 	@Override
@@ -117,12 +75,10 @@ public class WeeklyReportAction extends Action {
 		if (group != null) {
 			boolean supportSport = false;
 			boolean supportStep = false;
-			if (isMapContainsKey(Config.WEEKLY_SPORT_VAILD_KEYWORD_LIST,
-					group.getAllVaildKeyword(MsgTypeEnum.TEXT))) {
+			if (group.containsAction(WeeklySportClockIn.class)) {
 				supportSport = true;
 			}
-			if (isMapContainsKey(Config.DAILY_STEP_VAILD_KEYWORD_LIST,
-					group.getAllVaildKeyword(MsgTypeEnum.TEXT))) {
+			if (group.containsAction(DailyStepClockIn.class)) {
 				supportStep = true;
 			}
 			if (supportSport == true || supportStep == true) {
@@ -208,10 +164,12 @@ public class WeeklyReportAction extends Action {
 		return result;
 	}
 
-	@Override
-	public String report(Group group) {
-		// TODO Auto-generated method stub
-		return null;
+	private int getDailyStep_weeklyLimitTimes() {
+		return dailyStep_weeklyLimitTimes;
+	}
+
+	private int getWeeklySport_weeklyLimitTimes() {
+		return weeklySport_weeklyLimitTimes;
 	}
 
 	@Override
@@ -236,13 +194,36 @@ public class WeeklyReportAction extends Action {
 		return false;
 	}
 
-	private boolean isMapContainsKey(Map<String, MsgTypeEnum> map,
-			List<String> list) {
-		for (String string : list) {
-			if (map.containsKey(string)) {
-				return true;
-			}
+	@Override
+	public String report(Group group) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private void setDailyStep_weeklyLimitTimes(int dailyStep_weeklyLimitTimes) {
+		LogUtil.MSG.debug("setDailyStep_weeklyLimitTimes: "
+				+ dailyStep_weeklyLimitTimes);
+		if (dailyStep_weeklyLimitTimes >= 0) {
+			this.dailyStep_weeklyLimitTimes = dailyStep_weeklyLimitTimes;
+		} else {
+			throw new RuntimeException(
+					"setDailyStep_weeklyLimitTimes: out of range: "
+							+ dailyStep_weeklyLimitTimes);
 		}
-		return false;
+
+	}
+
+	private void setWeeklySport_weeklyLimitTimes(
+			int weeklySport_weeklyLimitTimes) {
+		LogUtil.MSG.debug("setWeeklySport_weeklyLimitTimes: "
+				+ weeklySport_weeklyLimitTimes);
+		if (weeklySport_weeklyLimitTimes >= 0) {
+			this.weeklySport_weeklyLimitTimes = weeklySport_weeklyLimitTimes;
+		} else {
+			throw new RuntimeException(
+					"setWeeklySport_weeklyLimitTimes: out of range: "
+							+ weeklySport_weeklyLimitTimes);
+		}
+
 	}
 }

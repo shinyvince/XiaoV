@@ -46,6 +46,154 @@ public class MessageTools {
 	private static MyHttpClient myHttpClient = core.getMyHttpClient();
 
 	/**
+	 * 被动添加好友
+	 *
+	 * @param msg
+	 * @param accept
+	 *            true 接受 false 拒绝
+	 * @date 2017年6月29日 下午10:08:43
+	 */
+	public static void addFriend(BaseMsg msg, boolean accept) {
+		if (!accept) { // 不添加
+			return;
+		}
+		int status = VerifyFriendEnum.ACCEPT.getCode(); // 接受好友请求
+		RecommendInfo recommendInfo = msg.getRecommendInfo();
+		String userName = recommendInfo.getUserName();
+		String ticket = recommendInfo.getTicket();
+		// 更新好友列表
+		// TODO 此处需要更新好友列表
+		// core.getContactList().add(msg.getJSONObject("RecommendInfo"));
+
+		String url = String.format(URLEnum.WEB_WX_VERIFYUSER.getUrl(), core
+				.getLoginInfo().get("url"), String.valueOf(System
+				.currentTimeMillis() / 3158L),
+				core.getLoginInfo().get("pass_ticket"));
+
+		List<Map<String, Object>> verifyUserList = new ArrayList<Map<String, Object>>();
+		Map<String, Object> verifyUser = new HashMap<String, Object>();
+		verifyUser.put("Value", userName);
+		verifyUser.put("VerifyUserTicket", ticket);
+		verifyUserList.add(verifyUser);
+
+		List<Integer> sceneList = new ArrayList<Integer>();
+		sceneList.add(33);
+
+		JSONObject body = new JSONObject();
+		body.put("BaseRequest", core.getParamMap().get("BaseRequest"));
+		body.put("Opcode", status);
+		body.put("VerifyUserListSize", 1);
+		body.put("VerifyUserList", verifyUserList);
+		body.put("VerifyContent", "");
+		body.put("SceneListCount", 1);
+		body.put("SceneList", sceneList);
+		body.put("skey",
+				core.getLoginInfo().get(StorageLoginInfoEnum.skey.getKey()));
+
+		String result = null;
+		try {
+			String paramStr = JSON.toJSONString(body);
+			HttpEntity entity = myHttpClient.doPost(url, paramStr);
+			result = EntityUtils.toString(entity, Consts.UTF_8);
+		} catch (Exception e) {
+			LOG.error("webWxSendMsg", e);
+		}
+
+		if (StringUtils.isBlank(result)) {
+			LOG.error("被动添加好友失败");
+		}
+
+		LOG.debug(result);
+
+	}
+
+	/**
+	 * 根据用户昵称发送文件消息
+	 *
+	 * @param nickName
+	 * @param filePath
+	 * @return
+	 * @author https://github.com/yaphone
+	 * @date 2017年5月10日 下午10:59:27
+	 */
+	public static boolean sendFileMsgByNickName(String nickName, String filePath) {
+		String toUserName = WechatTools.getUserNameByNickName(nickName);
+		if (toUserName != null) {
+			return sendFileMsgByUserId(toUserName, filePath);
+		}
+		return false;
+	}
+
+	/**
+	 * 根据用户id发送文件
+	 *
+	 * @param userId
+	 * @param filePath
+	 * @return
+	 * @author https://github.com/yaphone
+	 * @date 2017年5月7日 下午11:57:36
+	 */
+	public static boolean sendFileMsgByUserId(String userId, String filePath) {
+		String title = new File(filePath).getName();
+		Map<String, String> data = new HashMap<String, String>();
+		data.put("appid", Config.API_WXAPPID);
+		data.put("title", title);
+		data.put("totallen", "");
+		data.put("attachid", "");
+		data.put("type", "6"); // APPMSGTYPE_ATTACH
+		data.put("fileext", title.split("\\.")[1]); // 文件后缀
+		JSONObject responseObj = webWxUploadMedia(filePath);
+		if (responseObj != null) {
+			data.put("totallen", responseObj.getString("StartPos"));
+			data.put("attachid", responseObj.getString("MediaId"));
+		} else {
+			LOG.error("sednFileMsgByUserId 错误: ", data);
+		}
+		return webWxSendAppMsg(userId, data);
+	}
+
+	public static boolean sendGroupFileMsgByNickName(String groupNickName,
+			String filePath) {
+		if (groupNickName != null) {
+			String toUserName = WechatTools
+					.getGroupNameByGroupNickName(groupNickName);
+			if (toUserName != null) {
+
+				String title = new File(filePath).getName();
+				Map<String, String> data = new HashMap<String, String>();
+				data.put("appid", Config.API_WXAPPID);
+				data.put("title", title);
+				data.put("totallen", "");
+				data.put("attachid", "");
+				data.put("type", "6"); // APPMSGTYPE_ATTACH
+				data.put("fileext", title.split("\\.")[1]); // 文件后缀
+				JSONObject responseObj = webWxUploadMedia(filePath);
+				if (responseObj != null) {
+					data.put("totallen", responseObj.getString("StartPos"));
+					data.put("attachid", responseObj.getString("MediaId"));
+				} else {
+					LOG.error("sendGroupFileMsgByNickName 错误: ", data);
+				}
+				return webWxSendAppMsg(toUserName, data);
+			}
+		}
+		return false;
+	}
+
+	public static boolean sendGroupMsgByNickName(String text, String nickName) {
+		if (nickName != null) {
+			String toUserName = WechatTools
+					.getGroupNameByGroupNickName(nickName);
+			if (toUserName != null) {
+				webWxSendMsg(1, text, toUserName);
+				return true;
+			}
+		}
+		return false;
+
+	}
+
+	/**
 	 * 根据UserName发送文本消息
 	 *
 	 * @param msg
@@ -96,17 +244,107 @@ public class MessageTools {
 
 	}
 
-	public static boolean sendGroupMsgByNickName(String text, String nickName) {
-		if (nickName != null) {
-			String toUserName = WechatTools
-					.getGroupNameByGroupNickName(nickName);
-			if (toUserName != null) {
-				webWxSendMsg(1, text, toUserName);
-				return true;
+	public static boolean sendPicMsgByGroupNickName(String groupnickName,
+			String filePath) {
+		String toUserName = WechatTools
+				.getGroupNameByGroupNickName(groupnickName);
+		if (toUserName != null) {
+			return sendPicMsgByUserId(toUserName, filePath);
+		}
+		return false;
+	}
+
+	/**
+	 * 根据NickName发送图片消息
+	 *
+	 * @param nackName
+	 * @return
+	 * @author https://github.com/yaphone
+	 * @date 2017年5月7日 下午10:32:45
+	 */
+	public static boolean sendPicMsgByNickName(String nickName, String filePath) {
+		String toUserName = WechatTools.getUserNameByNickName(nickName);
+		if (toUserName != null) {
+			return sendPicMsgByUserId(toUserName, filePath);
+		}
+		return false;
+	}
+
+	/**
+	 * 根据用户id发送图片消息
+	 *
+	 * @param nickName
+	 * @param filePath
+	 * @return
+	 * @author https://github.com/yaphone
+	 * @date 2017年5月7日 下午10:34:24
+	 */
+	public static boolean sendPicMsgByUserId(String userId, String filePath) {
+		JSONObject responseObj = webWxUploadMedia(filePath);
+		if (responseObj != null) {
+			String mediaId = responseObj.getString("MediaId");
+			if (mediaId != null) {
+				return webWxSendMsgImg(userId, mediaId);
 			}
 		}
 		return false;
+	}
 
+	/**
+	 * 内部调用
+	 *
+	 * @param userId
+	 * @param data
+	 * @return
+	 * @author https://github.com/yaphone
+	 * @date 2017年5月10日 上午12:21:28
+	 */
+	private static boolean webWxSendAppMsg(String userId,
+			Map<String, String> data) {
+		String url = String.format(
+				"%s/webwxsendappmsg?fun=async&f=json&pass_ticket=%s", core
+						.getLoginInfo().get("url"),
+				core.getLoginInfo().get("pass_ticket"));
+		String clientMsgId = String.valueOf(new Date().getTime())
+				+ String.valueOf(new Random().nextLong()).substring(1, 5);
+		String content = "<appmsg appid='wxeb7ec651dd0aefa9' sdkver=''><title>"
+				+ data.get("title")
+				+ "</title><des></des><action></action><type>6</type><content></content><url></url><lowurl></lowurl>"
+				+ "<appattach><totallen>" + data.get("totallen")
+				+ "</totallen><attachid>" + data.get("attachid")
+				+ "</attachid><fileext>" + data.get("fileext")
+				+ "</fileext></appattach><extinfo></extinfo></appmsg>";
+		Map<String, Object> msgMap = new HashMap<String, Object>();
+		msgMap.put("Type", data.get("type"));
+		msgMap.put("Content", content);
+		msgMap.put("FromUserName", core.getUserSelf().getString("UserName"));
+		msgMap.put("ToUserName", userId);
+		msgMap.put("LocalID", clientMsgId);
+		msgMap.put("ClientMsgId", clientMsgId);
+		/*
+		 * Map<String, Object> paramMap = new HashMap<String, Object>();
+		 * 
+		 * @SuppressWarnings("unchecked") Map<String, Map<String, String>>
+		 * baseRequestMap = (Map<String, Map<String, String>>)
+		 * core.getLoginInfo() .get("baseRequest"); paramMap.put("BaseRequest",
+		 * baseRequestMap.get("BaseRequest"));
+		 */
+
+		Map<String, Object> paramMap = core.getParamMap();
+		paramMap.put("Msg", msgMap);
+		paramMap.put("Scene", 0);
+		String paramStr = JSON.toJSONString(paramMap);
+		HttpEntity entity = myHttpClient.doPost(url, paramStr);
+		if (entity != null) {
+			try {
+				String result = EntityUtils.toString(entity, Consts.UTF_8);
+				return JSON.parseObject(result).getJSONObject("BaseResponse")
+						.getInteger("Ret") == 0;
+			} catch (Exception e) {
+				LOG.error("错误: ", e);
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -140,6 +378,45 @@ public class MessageTools {
 		} catch (Exception e) {
 			LOG.error("webWxSendMsg", e);
 		}
+	}
+
+	/**
+	 * 发送图片消息，内部调用
+	 *
+	 * @return
+	 * @author https://github.com/yaphone
+	 * @date 2017年5月7日 下午10:38:55
+	 */
+	private static boolean webWxSendMsgImg(String userId, String mediaId) {
+		String url = String.format(
+				"%s/webwxsendmsgimg?fun=async&f=json&pass_ticket=%s", core
+						.getLoginInfo().get("url"),
+				core.getLoginInfo().get("pass_ticket"));
+		Map<String, Object> msgMap = new HashMap<String, Object>();
+		msgMap.put("Type", 3);
+		msgMap.put("MediaId", mediaId);
+		msgMap.put("FromUserName", core.getUserSelf().getString("UserName"));
+		msgMap.put("ToUserName", userId);
+		String clientMsgId = String.valueOf(new Date().getTime())
+				+ String.valueOf(new Random().nextLong()).substring(1, 5);
+		msgMap.put("LocalID", clientMsgId);
+		msgMap.put("ClientMsgId", clientMsgId);
+		Map<String, Object> paramMap = core.getParamMap();
+		paramMap.put("BaseRequest", core.getParamMap().get("BaseRequest"));
+		paramMap.put("Msg", msgMap);
+		String paramStr = JSON.toJSONString(paramMap);
+		HttpEntity entity = myHttpClient.doPost(url, paramStr);
+		if (entity != null) {
+			try {
+				String result = EntityUtils.toString(entity, Consts.UTF_8);
+				return JSON.parseObject(result).getJSONObject("BaseResponse")
+						.getInteger("Ret") == 0;
+			} catch (Exception e) {
+				LOG.error("webWxSendMsgImg 错误： ", e);
+			}
+		}
+		return false;
+
 	}
 
 	/**
@@ -215,283 +492,6 @@ public class MessageTools {
 
 		}
 		return null;
-	}
-
-	/**
-	 * 根据NickName发送图片消息
-	 *
-	 * @param nackName
-	 * @return
-	 * @author https://github.com/yaphone
-	 * @date 2017年5月7日 下午10:32:45
-	 */
-	public static boolean sendPicMsgByNickName(String nickName, String filePath) {
-		String toUserName = WechatTools.getUserNameByNickName(nickName);
-		if (toUserName != null) {
-			return sendPicMsgByUserId(toUserName, filePath);
-		}
-		return false;
-	}
-
-	public static boolean sendPicMsgByGroupNickName(String groupnickName,
-			String filePath) {
-		String toUserName = WechatTools
-				.getGroupNameByGroupNickName(groupnickName);
-		if (toUserName != null) {
-			return sendPicMsgByUserId(toUserName, filePath);
-		}
-		return false;
-	}
-
-	/**
-	 * 根据用户id发送图片消息
-	 *
-	 * @param nickName
-	 * @param filePath
-	 * @return
-	 * @author https://github.com/yaphone
-	 * @date 2017年5月7日 下午10:34:24
-	 */
-	public static boolean sendPicMsgByUserId(String userId, String filePath) {
-		JSONObject responseObj = webWxUploadMedia(filePath);
-		if (responseObj != null) {
-			String mediaId = responseObj.getString("MediaId");
-			if (mediaId != null) {
-				return webWxSendMsgImg(userId, mediaId);
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * 发送图片消息，内部调用
-	 *
-	 * @return
-	 * @author https://github.com/yaphone
-	 * @date 2017年5月7日 下午10:38:55
-	 */
-	private static boolean webWxSendMsgImg(String userId, String mediaId) {
-		String url = String.format(
-				"%s/webwxsendmsgimg?fun=async&f=json&pass_ticket=%s", core
-						.getLoginInfo().get("url"),
-				core.getLoginInfo().get("pass_ticket"));
-		Map<String, Object> msgMap = new HashMap<String, Object>();
-		msgMap.put("Type", 3);
-		msgMap.put("MediaId", mediaId);
-		msgMap.put("FromUserName", core.getUserSelf().getString("UserName"));
-		msgMap.put("ToUserName", userId);
-		String clientMsgId = String.valueOf(new Date().getTime())
-				+ String.valueOf(new Random().nextLong()).substring(1, 5);
-		msgMap.put("LocalID", clientMsgId);
-		msgMap.put("ClientMsgId", clientMsgId);
-		Map<String, Object> paramMap = core.getParamMap();
-		paramMap.put("BaseRequest", core.getParamMap().get("BaseRequest"));
-		paramMap.put("Msg", msgMap);
-		String paramStr = JSON.toJSONString(paramMap);
-		HttpEntity entity = myHttpClient.doPost(url, paramStr);
-		if (entity != null) {
-			try {
-				String result = EntityUtils.toString(entity, Consts.UTF_8);
-				return JSON.parseObject(result).getJSONObject("BaseResponse")
-						.getInteger("Ret") == 0;
-			} catch (Exception e) {
-				LOG.error("webWxSendMsgImg 错误： ", e);
-			}
-		}
-		return false;
-
-	}
-
-	public static boolean sendGroupFileMsgByNickName(String groupNickName,
-			String filePath) {
-		if (groupNickName != null) {
-			String toUserName = WechatTools
-					.getGroupNameByGroupNickName(groupNickName);
-			if (toUserName != null) {
-
-				String title = new File(filePath).getName();
-				Map<String, String> data = new HashMap<String, String>();
-				data.put("appid", Config.API_WXAPPID);
-				data.put("title", title);
-				data.put("totallen", "");
-				data.put("attachid", "");
-				data.put("type", "6"); // APPMSGTYPE_ATTACH
-				data.put("fileext", title.split("\\.")[1]); // 文件后缀
-				JSONObject responseObj = webWxUploadMedia(filePath);
-				if (responseObj != null) {
-					data.put("totallen", responseObj.getString("StartPos"));
-					data.put("attachid", responseObj.getString("MediaId"));
-				} else {
-					LOG.error("sendGroupFileMsgByNickName 错误: ", data);
-				}
-				return webWxSendAppMsg(toUserName, data);
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * 根据用户id发送文件
-	 *
-	 * @param userId
-	 * @param filePath
-	 * @return
-	 * @author https://github.com/yaphone
-	 * @date 2017年5月7日 下午11:57:36
-	 */
-	public static boolean sendFileMsgByUserId(String userId, String filePath) {
-		String title = new File(filePath).getName();
-		Map<String, String> data = new HashMap<String, String>();
-		data.put("appid", Config.API_WXAPPID);
-		data.put("title", title);
-		data.put("totallen", "");
-		data.put("attachid", "");
-		data.put("type", "6"); // APPMSGTYPE_ATTACH
-		data.put("fileext", title.split("\\.")[1]); // 文件后缀
-		JSONObject responseObj = webWxUploadMedia(filePath);
-		if (responseObj != null) {
-			data.put("totallen", responseObj.getString("StartPos"));
-			data.put("attachid", responseObj.getString("MediaId"));
-		} else {
-			LOG.error("sednFileMsgByUserId 错误: ", data);
-		}
-		return webWxSendAppMsg(userId, data);
-	}
-
-	/**
-	 * 根据用户昵称发送文件消息
-	 *
-	 * @param nickName
-	 * @param filePath
-	 * @return
-	 * @author https://github.com/yaphone
-	 * @date 2017年5月10日 下午10:59:27
-	 */
-	public static boolean sendFileMsgByNickName(String nickName, String filePath) {
-		String toUserName = WechatTools.getUserNameByNickName(nickName);
-		if (toUserName != null) {
-			return sendFileMsgByUserId(toUserName, filePath);
-		}
-		return false;
-	}
-
-	/**
-	 * 内部调用
-	 *
-	 * @param userId
-	 * @param data
-	 * @return
-	 * @author https://github.com/yaphone
-	 * @date 2017年5月10日 上午12:21:28
-	 */
-	private static boolean webWxSendAppMsg(String userId,
-			Map<String, String> data) {
-		String url = String.format(
-				"%s/webwxsendappmsg?fun=async&f=json&pass_ticket=%s", core
-						.getLoginInfo().get("url"),
-				core.getLoginInfo().get("pass_ticket"));
-		String clientMsgId = String.valueOf(new Date().getTime())
-				+ String.valueOf(new Random().nextLong()).substring(1, 5);
-		String content = "<appmsg appid='wxeb7ec651dd0aefa9' sdkver=''><title>"
-				+ data.get("title")
-				+ "</title><des></des><action></action><type>6</type><content></content><url></url><lowurl></lowurl>"
-				+ "<appattach><totallen>" + data.get("totallen")
-				+ "</totallen><attachid>" + data.get("attachid")
-				+ "</attachid><fileext>" + data.get("fileext")
-				+ "</fileext></appattach><extinfo></extinfo></appmsg>";
-		Map<String, Object> msgMap = new HashMap<String, Object>();
-		msgMap.put("Type", data.get("type"));
-		msgMap.put("Content", content);
-		msgMap.put("FromUserName", core.getUserSelf().getString("UserName"));
-		msgMap.put("ToUserName", userId);
-		msgMap.put("LocalID", clientMsgId);
-		msgMap.put("ClientMsgId", clientMsgId);
-		/*
-		 * Map<String, Object> paramMap = new HashMap<String, Object>();
-		 * 
-		 * @SuppressWarnings("unchecked") Map<String, Map<String, String>>
-		 * baseRequestMap = (Map<String, Map<String, String>>)
-		 * core.getLoginInfo() .get("baseRequest"); paramMap.put("BaseRequest",
-		 * baseRequestMap.get("BaseRequest"));
-		 */
-
-		Map<String, Object> paramMap = core.getParamMap();
-		paramMap.put("Msg", msgMap);
-		paramMap.put("Scene", 0);
-		String paramStr = JSON.toJSONString(paramMap);
-		HttpEntity entity = myHttpClient.doPost(url, paramStr);
-		if (entity != null) {
-			try {
-				String result = EntityUtils.toString(entity, Consts.UTF_8);
-				return JSON.parseObject(result).getJSONObject("BaseResponse")
-						.getInteger("Ret") == 0;
-			} catch (Exception e) {
-				LOG.error("错误: ", e);
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * 被动添加好友
-	 *
-	 * @param msg
-	 * @param accept
-	 *            true 接受 false 拒绝
-	 * @date 2017年6月29日 下午10:08:43
-	 */
-	public static void addFriend(BaseMsg msg, boolean accept) {
-		if (!accept) { // 不添加
-			return;
-		}
-		int status = VerifyFriendEnum.ACCEPT.getCode(); // 接受好友请求
-		RecommendInfo recommendInfo = msg.getRecommendInfo();
-		String userName = recommendInfo.getUserName();
-		String ticket = recommendInfo.getTicket();
-		// 更新好友列表
-		// TODO 此处需要更新好友列表
-		// core.getContactList().add(msg.getJSONObject("RecommendInfo"));
-
-		String url = String.format(URLEnum.WEB_WX_VERIFYUSER.getUrl(), core
-				.getLoginInfo().get("url"), String.valueOf(System
-				.currentTimeMillis() / 3158L),
-				core.getLoginInfo().get("pass_ticket"));
-
-		List<Map<String, Object>> verifyUserList = new ArrayList<Map<String, Object>>();
-		Map<String, Object> verifyUser = new HashMap<String, Object>();
-		verifyUser.put("Value", userName);
-		verifyUser.put("VerifyUserTicket", ticket);
-		verifyUserList.add(verifyUser);
-
-		List<Integer> sceneList = new ArrayList<Integer>();
-		sceneList.add(33);
-
-		JSONObject body = new JSONObject();
-		body.put("BaseRequest", core.getParamMap().get("BaseRequest"));
-		body.put("Opcode", status);
-		body.put("VerifyUserListSize", 1);
-		body.put("VerifyUserList", verifyUserList);
-		body.put("VerifyContent", "");
-		body.put("SceneListCount", 1);
-		body.put("SceneList", sceneList);
-		body.put("skey",
-				core.getLoginInfo().get(StorageLoginInfoEnum.skey.getKey()));
-
-		String result = null;
-		try {
-			String paramStr = JSON.toJSONString(body);
-			HttpEntity entity = myHttpClient.doPost(url, paramStr);
-			result = EntityUtils.toString(entity, Consts.UTF_8);
-		} catch (Exception e) {
-			LOG.error("webWxSendMsg", e);
-		}
-
-		if (StringUtils.isBlank(result)) {
-			LOG.error("被动添加好友失败");
-		}
-
-		LOG.debug(result);
-
 	}
 
 }

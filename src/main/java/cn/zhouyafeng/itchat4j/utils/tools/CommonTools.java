@@ -32,6 +32,103 @@ import com.vdurmont.emoji.EmojiParser;
  */
 public class CommonTools {
 
+	public static boolean clearScreen() {
+		switch (Config.getOsNameEnum()) {
+		case WINDOWS:
+			if (Config.getOsNameEnum().equals(OsNameEnum.WINDOWS)) {
+				Runtime runtime = Runtime.getRuntime();
+				try {
+					runtime.exec("cmd /c " + "cls");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			break;
+
+		default:
+			break;
+		}
+		return true;
+	}
+
+	/**
+	 * 处理emoji表情
+	 *
+	 * @param d
+	 * @param k
+	 * @author https://github.com/yaphone
+	 * @date 2017年4月23日 下午2:39:04
+	 */
+	public static void emojiFormatter(JSONObject d, String k) {
+		Matcher matcher = getMatcher(
+				"<span class=\"emoji emoji(.{1,10})\"></span>", d.getString(k));
+		StringBuilder sb = new StringBuilder();
+		String content = d.getString(k);
+		int lastStart = 0;
+		while (matcher.find()) {
+			String str = matcher.group(1);
+			if (str.length() == 6) {
+
+			} else if (str.length() == 10) {
+
+			} else {
+				str = "&#x" + str + ";";
+				String tmp = content.substring(lastStart, matcher.start());
+				sb.append(tmp + str);
+				lastStart = matcher.end();
+			}
+		}
+		if (lastStart < content.length()) {
+			sb.append(content.substring(lastStart));
+		}
+		if (sb.length() != 0) {
+			d.put(k, EmojiParser.parseToUnicode(sb.toString()));
+		} else {
+			d.put(k, content);
+		}
+
+	}
+
+	/**
+	 * 正则表达式处理工具
+	 *
+	 * @return
+	 * @author https://github.com/yaphone
+	 * @date 2017年4月9日 上午12:27:10
+	 */
+	public static Matcher getMatcher(String regEx, String text) {
+		Pattern pattern = Pattern.compile(regEx);
+		Matcher matcher = pattern.matcher(text);
+		return matcher;
+	}
+
+	public static String getSynckey(JSONObject obj) {
+		JSONArray obj2 = obj.getJSONArray("List");
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < obj2.size(); i++) {
+			JSONObject obj3 = (JSONObject) JSON.toJSON(obj2.get(i));
+			sb.append(obj3.get("Val") + "|");
+		}
+		return sb.substring(0, sb.length() - 1); // 656159784|656159911|656159873|1491905341
+
+	}
+
+	/**
+	 * 消息格式化
+	 *
+	 * @param d
+	 * @param k
+	 * @author https://github.com/yaphone
+	 * @date 2017年4月23日 下午4:19:08
+	 */
+	public static void msgFormatter(JSONObject d, String k) {
+		d.put(k, d.getString(k).replace("<br/>", "\n"));
+		emojiFormatter(d, k);
+		// TODO 与emoji表情有部分兼容问题，目前暂未处理解码处理 d.put(k,
+		// StringEscapeUtils.unescapeHtml4(d.getString(k)));
+
+	}
+
 	public static boolean printQr(String qrPath) {
 
 		switch (Config.getOsNameEnum()) {
@@ -62,58 +159,16 @@ public class CommonTools {
 		return true;
 	}
 
-	public static boolean clearScreen() {
-		switch (Config.getOsNameEnum()) {
-		case WINDOWS:
-			if (Config.getOsNameEnum().equals(OsNameEnum.WINDOWS)) {
-				Runtime runtime = Runtime.getRuntime();
-				try {
-					runtime.exec("cmd /c " + "cls");
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+	public static JSONObject searchDictList(List<JSONObject> list, String key,
+			String value) {
+		JSONObject r = null;
+		for (JSONObject i : list) {
+			if (i.getString(key).equals(value)) {
+				r = i;
+				break;
 			}
-			break;
-
-		default:
-			break;
 		}
-		return true;
-	}
-
-	/**
-	 * 正则表达式处理工具
-	 *
-	 * @return
-	 * @author https://github.com/yaphone
-	 * @date 2017年4月9日 上午12:27:10
-	 */
-	public static Matcher getMatcher(String regEx, String text) {
-		Pattern pattern = Pattern.compile(regEx);
-		Matcher matcher = pattern.matcher(text);
-		return matcher;
-	}
-
-	/**
-	 * xml解析器
-	 *
-	 * @param text
-	 * @return
-	 * @author https://github.com/yaphone
-	 * @date 2017年4月9日 下午6:24:25
-	 */
-	public static Document xmlParser(String text) {
-		Document doc = null;
-		StringReader sr = new StringReader(text);
-		InputSource is = new InputSource(sr);
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		try {
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			doc = builder.parse(is);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return doc;
+		return r;
 	}
 
 	public static JSONObject structFriendInfo(JSONObject userObj) {
@@ -164,81 +219,26 @@ public class CommonTools {
 		return r;
 	}
 
-	public static String getSynckey(JSONObject obj) {
-		JSONArray obj2 = obj.getJSONArray("List");
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < obj2.size(); i++) {
-			JSONObject obj3 = (JSONObject) JSON.toJSON(obj2.get(i));
-			sb.append(obj3.get("Val") + "|");
-		}
-		return sb.substring(0, sb.length() - 1); // 656159784|656159911|656159873|1491905341
-
-	}
-
-	public static JSONObject searchDictList(List<JSONObject> list, String key,
-			String value) {
-		JSONObject r = null;
-		for (JSONObject i : list) {
-			if (i.getString(key).equals(value)) {
-				r = i;
-				break;
-			}
-		}
-		return r;
-	}
-
 	/**
-	 * 处理emoji表情
+	 * xml解析器
 	 *
-	 * @param d
-	 * @param k
+	 * @param text
+	 * @return
 	 * @author https://github.com/yaphone
-	 * @date 2017年4月23日 下午2:39:04
+	 * @date 2017年4月9日 下午6:24:25
 	 */
-	public static void emojiFormatter(JSONObject d, String k) {
-		Matcher matcher = getMatcher(
-				"<span class=\"emoji emoji(.{1,10})\"></span>", d.getString(k));
-		StringBuilder sb = new StringBuilder();
-		String content = d.getString(k);
-		int lastStart = 0;
-		while (matcher.find()) {
-			String str = matcher.group(1);
-			if (str.length() == 6) {
-
-			} else if (str.length() == 10) {
-
-			} else {
-				str = "&#x" + str + ";";
-				String tmp = content.substring(lastStart, matcher.start());
-				sb.append(tmp + str);
-				lastStart = matcher.end();
-			}
+	public static Document xmlParser(String text) {
+		Document doc = null;
+		StringReader sr = new StringReader(text);
+		InputSource is = new InputSource(sr);
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		try {
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			doc = builder.parse(is);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		if (lastStart < content.length()) {
-			sb.append(content.substring(lastStart));
-		}
-		if (sb.length() != 0) {
-			d.put(k, EmojiParser.parseToUnicode(sb.toString()));
-		} else {
-			d.put(k, content);
-		}
-
-	}
-
-	/**
-	 * 消息格式化
-	 *
-	 * @param d
-	 * @param k
-	 * @author https://github.com/yaphone
-	 * @date 2017年4月23日 下午4:19:08
-	 */
-	public static void msgFormatter(JSONObject d, String k) {
-		d.put(k, d.getString(k).replace("<br/>", "\n"));
-		emojiFormatter(d, k);
-		// TODO 与emoji表情有部分兼容问题，目前暂未处理解码处理 d.put(k,
-		// StringEscapeUtils.unescapeHtml4(d.getString(k)));
-
+		return doc;
 	}
 
 }

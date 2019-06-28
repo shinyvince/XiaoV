@@ -5,13 +5,11 @@ import static org.androidtest.xiaoV.data.Constant.SIMPLE_DAY_FORMAT_FILE;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.androidtest.xiaoV.Config;
 import org.androidtest.xiaoV.data.Group;
 import org.androidtest.xiaoV.publicutil.LogUtil;
 import org.androidtest.xiaoV.publicutil.StringUtil;
@@ -29,25 +27,19 @@ import cn.zhouyafeng.itchat4j.utils.enums.MsgTypeEnum;
  */
 public class WeeklySportClockIn extends ClockIn {
 
-	public WeeklySportClockIn(int weeklyLimitTimes) {
-		super(weeklyLimitTimes);
-	}
-
-	@Override
-	public List<String> getVaildKeywords(MsgTypeEnum type) {// TODO
-															// 待重构，可以在基类里使用减少代码量
-		List<String> list = new ArrayList<String>();
-		Iterator iter = Config.WEEKLY_SPORT_VAILD_KEYWORD_LIST.entrySet()
-				.iterator();
-		while (iter.hasNext()) {
-			Map.Entry entry = (Map.Entry) iter.next();
-			String vaildKeyword = (String) entry.getKey();
-			MsgTypeEnum vaildType = (MsgTypeEnum) entry.getValue();
-			if (vaildType == type) {
-				list.add(vaildKeyword);
-			}
+	/**
+	 * WeeklySportClockIn类的合法参数及参数类型
+	 */
+	@SuppressWarnings("serial")
+	private static final Map<String, MsgTypeEnum> WEEKLY_SPORT_VAILD_KEYWORD_LIST = new HashMap<String, MsgTypeEnum>() {
+		{
+			put("运动打卡", MsgTypeEnum.TEXT);
+			put("打卡运动", MsgTypeEnum.TEXT);
 		}
-		return list;
+	};
+
+	public WeeklySportClockIn(int weeklyLimitTimes) {
+		super(WEEKLY_SPORT_VAILD_KEYWORD_LIST, weeklyLimitTimes);
 	}
 
 	@Override
@@ -122,6 +114,12 @@ public class WeeklySportClockIn extends ClockIn {
 	}
 
 	@Override
+	public boolean notify(Group group) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
 	public String report(Group group) {
 		LogUtil.MSG.debug("report: " + this.getClass().getSimpleName() + ", "
 				+ group.getGroupNickName());
@@ -173,12 +171,6 @@ public class WeeklySportClockIn extends ClockIn {
 					+ "非文件夹路径！");
 		}
 		return result;
-	}
-
-	@Override
-	public boolean notify(Group group) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 }

@@ -12,10 +12,6 @@ import java.net.URL;
  */
 public class DownloadUtil {
 
-	private DownloadUtil() {
-
-	}
-
 	/**
 	 * 从网络Url中下载文件 （加了进程锁，避免同时下载多个文件消耗过多系统资源）
 	 * 
@@ -65,5 +61,9 @@ public class DownloadUtil {
 			// LogUtil.APP.error("downLoadFromUrl fail", e);
 			// TODO 返回EXCEPTION到测试用例执行结果里
 		}
+	}
+
+	private DownloadUtil() {
+
 	}
 }

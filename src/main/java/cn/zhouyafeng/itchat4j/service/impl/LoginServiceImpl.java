@@ -64,6 +64,155 @@ public class LoginServiceImpl implements ILoginService {
 
 	}
 
+	/**
+	 * 检查登陆状态
+	 *
+	 * @param result
+	 * @return
+	 */
+	public String checklogin(String result) {
+		String regEx = "window.code=(\\d+)";
+		Matcher matcher = CommonTools.getMatcher(regEx, result);
+		if (matcher.find()) {
+			return matcher.group(1);
+		}
+		return null;
+	}
+
+	/**
+	 * 解析登录返回的消息，如果成功登录，则message为空
+	 *
+	 * @param result
+	 * @return
+	 */
+	public String getLoginMessage(String result) {
+		String[] strArr = result.split("<message>");
+		String[] rs = strArr[1].split("</message>");
+		if (rs != null && rs.length > 1) {
+			return rs[0];
+		}
+		return "";
+	}
+
+	private Map<String, List<String>> getPossibleUrlMap() {
+		Map<String, List<String>> possibleUrlMap = new HashMap<String, List<String>>();
+		possibleUrlMap.put("wx.qq.com", new ArrayList<String>() {
+			/**
+             *
+             */
+			private static final long serialVersionUID = 1L;
+
+			{
+				add("file.wx.qq.com");
+				add("webpush.wx.qq.com");
+			}
+		});
+
+		possibleUrlMap.put("wx2.qq.com", new ArrayList<String>() {
+			/**
+             *
+             */
+			private static final long serialVersionUID = 1L;
+
+			{
+				add("file.wx2.qq.com");
+				add("webpush.wx2.qq.com");
+			}
+		});
+		possibleUrlMap.put("wx8.qq.com", new ArrayList<String>() {
+			/**
+             *
+             */
+			private static final long serialVersionUID = 1L;
+
+			{
+				add("file.wx8.qq.com");
+				add("webpush.wx8.qq.com");
+			}
+		});
+
+		possibleUrlMap.put("web2.wechat.com", new ArrayList<String>() {
+			/**
+             *
+             */
+			private static final long serialVersionUID = 1L;
+
+			{
+				add("file.web2.wechat.com");
+				add("webpush.web2.wechat.com");
+			}
+		});
+		possibleUrlMap.put("wechat.com", new ArrayList<String>() {
+			/**
+             *
+             */
+			private static final long serialVersionUID = 1L;
+
+			{
+				add("file.web.wechat.com");
+				add("webpush.web.wechat.com");
+			}
+		});
+		return possibleUrlMap;
+	}
+
+	@Override
+	public boolean getQR(String qrPath) {
+		qrPath = qrPath + File.separator + "QR.jpg";
+		String qrUrl = URLEnum.QRCODE_URL.getUrl() + core.getUuid();
+		HttpEntity entity = myHttpClient.doGet(qrUrl, null, true, null);
+		try {
+			OutputStream out = new FileOutputStream(qrPath);
+			byte[] bytes = EntityUtils.toByteArray(entity);
+			out.write(bytes);
+			out.flush();
+			out.close();
+			try {
+				CommonTools.printQr(qrPath); // 打开登陆二维码图片
+			} catch (Exception e) {
+				LOG.info(e.getMessage());
+			}
+
+		} catch (Exception e) {
+			LOG.info(e.getMessage());
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	public String getUuid() {
+		// 组装参数和URL
+		List<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
+		params.add(new BasicNameValuePair(UUIDParaEnum.APP_ID.para(),
+				UUIDParaEnum.APP_ID.value()));
+		params.add(new BasicNameValuePair(UUIDParaEnum.FUN.para(),
+				UUIDParaEnum.FUN.value()));
+		params.add(new BasicNameValuePair(UUIDParaEnum.LANG.para(),
+				UUIDParaEnum.LANG.value()));
+		params.add(new BasicNameValuePair(UUIDParaEnum._.para(), String
+				.valueOf(System.currentTimeMillis())));
+
+		HttpEntity entity = httpClient.doGet(URLEnum.UUID_URL.getUrl(), params,
+				true, null);
+
+		try {
+			String result = EntityUtils.toString(entity);
+			String regEx = "window.QRLogin.code = (\\d+); window.QRLogin.uuid = \"(\\S+?)\";";
+			Matcher matcher = CommonTools.getMatcher(regEx, result);
+			if (matcher.find()) {
+				if ((ResultEnum.SUCCESS.getCode().equals(matcher.group(1)))) {
+					core.setUuid(matcher.group(2));
+				}
+			}
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		}
+
+		return core.getUuid();
+	}
+
 	@Override
 	public boolean login() {
 
@@ -109,158 +258,94 @@ public class LoginServiceImpl implements ILoginService {
 		return isLogin;
 	}
 
-	@Override
-	public String getUuid() {
-		// 组装参数和URL
-		List<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
-		params.add(new BasicNameValuePair(UUIDParaEnum.APP_ID.para(),
-				UUIDParaEnum.APP_ID.value()));
-		params.add(new BasicNameValuePair(UUIDParaEnum.FUN.para(),
-				UUIDParaEnum.FUN.value()));
-		params.add(new BasicNameValuePair(UUIDParaEnum.LANG.para(),
-				UUIDParaEnum.LANG.value()));
-		params.add(new BasicNameValuePair(UUIDParaEnum._.para(), String
-				.valueOf(System.currentTimeMillis())));
-
-		HttpEntity entity = httpClient.doGet(URLEnum.UUID_URL.getUrl(), params,
-				true, null);
-
-		try {
-			String result = EntityUtils.toString(entity);
-			String regEx = "window.QRLogin.code = (\\d+); window.QRLogin.uuid = \"(\\S+?)\";";
-			Matcher matcher = CommonTools.getMatcher(regEx, result);
-			if (matcher.find()) {
-				if ((ResultEnum.SUCCESS.getCode().equals(matcher.group(1)))) {
-					core.setUuid(matcher.group(2));
+	/**
+	 * 处理登陆信息
+	 *
+	 * @param result
+	 * @author https://github.com/yaphone
+	 * @date 2017年4月9日 下午12:16:26
+	 */
+	private void processLoginInfo(String loginContent) {
+		String regEx = "window.redirect_uri=\"(\\S+)\";";
+		Matcher matcher = CommonTools.getMatcher(regEx, loginContent);
+		if (matcher.find()) {
+			String originalUrl = matcher.group(1);
+			String url = originalUrl.substring(0, originalUrl.lastIndexOf('/')); // https://wx2.qq.com/cgi-bin/mmwebwx-bin
+			core.getLoginInfo().put("url", url);
+			Map<String, List<String>> possibleUrlMap = this.getPossibleUrlMap();
+			Iterator<Entry<String, List<String>>> iterator = possibleUrlMap
+					.entrySet().iterator();
+			Map.Entry<String, List<String>> entry;
+			String fileUrl;
+			String syncUrl;
+			while (iterator.hasNext()) {
+				entry = iterator.next();
+				String indexUrl = entry.getKey();
+				fileUrl = "https://" + entry.getValue().get(0)
+						+ "/cgi-bin/mmwebwx-bin";
+				syncUrl = "https://" + entry.getValue().get(1)
+						+ "/cgi-bin/mmwebwx-bin";
+				if (core.getLoginInfo().get("url").toString()
+						.contains(indexUrl)) {
+					core.setIndexUrl(indexUrl);
+					core.getLoginInfo().put("fileUrl", fileUrl);
+					core.getLoginInfo().put("syncUrl", syncUrl);
+					break;
 				}
 			}
-		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
-		}
+			if (core.getLoginInfo().get("fileUrl") == null
+					&& core.getLoginInfo().get("syncUrl") == null) {
+				core.getLoginInfo().put("fileUrl", url);
+				core.getLoginInfo().put("syncUrl", url);
+			}
+			core.getLoginInfo().put(
+					"deviceid",
+					"e"
+							+ String.valueOf(new Random().nextLong())
+									.substring(1, 16)); // 生成15位随机数
+			core.getLoginInfo().put("BaseRequest", new ArrayList<String>());
+			String text = "";
 
-		return core.getUuid();
-	}
-
-	@Override
-	public boolean getQR(String qrPath) {
-		qrPath = qrPath + File.separator + "QR.jpg";
-		String qrUrl = URLEnum.QRCODE_URL.getUrl() + core.getUuid();
-		HttpEntity entity = myHttpClient.doGet(qrUrl, null, true, null);
-		try {
-			OutputStream out = new FileOutputStream(qrPath);
-			byte[] bytes = EntityUtils.toByteArray(entity);
-			out.write(bytes);
-			out.flush();
-			out.close();
 			try {
-				CommonTools.printQr(qrPath); // 打开登陆二维码图片
+				HttpEntity entity = myHttpClient.doGet(originalUrl, null,
+						false, null);
+				text = EntityUtils.toString(entity);
 			} catch (Exception e) {
 				LOG.info(e.getMessage());
+				return;
+			}
+			// add by 默非默 2017-08-01 22:28:09
+			// 如果登录被禁止时，则登录返回的message内容不为空，下面代码则判断登录内容是否为空，不为空则退出程序
+			String msg = getLoginMessage(text);
+			if (!"".equals(msg)) {
+				LOG.info(msg);
+				System.exit(0);
+			}
+			Document doc = CommonTools.xmlParser(text);
+			if (doc != null) {
+				core.getLoginInfo().put(
+						StorageLoginInfoEnum.skey.getKey(),
+						doc.getElementsByTagName(
+								StorageLoginInfoEnum.skey.getKey()).item(0)
+								.getFirstChild().getNodeValue());
+				core.getLoginInfo().put(
+						StorageLoginInfoEnum.wxsid.getKey(),
+						doc.getElementsByTagName(
+								StorageLoginInfoEnum.wxsid.getKey()).item(0)
+								.getFirstChild().getNodeValue());
+				core.getLoginInfo().put(
+						StorageLoginInfoEnum.wxuin.getKey(),
+						doc.getElementsByTagName(
+								StorageLoginInfoEnum.wxuin.getKey()).item(0)
+								.getFirstChild().getNodeValue());
+				core.getLoginInfo().put(
+						StorageLoginInfoEnum.pass_ticket.getKey(),
+						doc.getElementsByTagName(
+								StorageLoginInfoEnum.pass_ticket.getKey())
+								.item(0).getFirstChild().getNodeValue());
 			}
 
-		} catch (Exception e) {
-			LOG.info(e.getMessage());
-			return false;
 		}
-
-		return true;
-	}
-
-	@Override
-	public boolean webWxInit() {
-		core.setAlive(true);
-		core.setLastNormalRetcodeTime(System.currentTimeMillis());
-		// 组装请求URL和参数
-		String url = String.format(URLEnum.INIT_URL.getUrl(), core
-				.getLoginInfo().get(StorageLoginInfoEnum.url.getKey()), String
-				.valueOf(System.currentTimeMillis() / 3158L), core
-				.getLoginInfo().get(StorageLoginInfoEnum.pass_ticket.getKey()));
-
-		Map<String, Object> paramMap = core.getParamMap();
-
-		// 请求初始化接口
-		HttpEntity entity = httpClient.doPost(url, JSON.toJSONString(paramMap));
-		try {
-			String result = EntityUtils.toString(entity, Consts.UTF_8);
-			JSONObject obj = JSON.parseObject(result);
-
-			JSONObject user = obj.getJSONObject(StorageLoginInfoEnum.User
-					.getKey());
-			JSONObject syncKey = obj.getJSONObject(StorageLoginInfoEnum.SyncKey
-					.getKey());
-
-			core.getLoginInfo().put(
-					StorageLoginInfoEnum.InviteStartCount.getKey(),
-					obj.getInteger(StorageLoginInfoEnum.InviteStartCount
-							.getKey()));
-			core.getLoginInfo().put(StorageLoginInfoEnum.SyncKey.getKey(),
-					syncKey);
-
-			JSONArray syncArray = syncKey.getJSONArray("List");
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < syncArray.size(); i++) {
-				sb.append(syncArray.getJSONObject(i).getString("Key") + "_"
-						+ syncArray.getJSONObject(i).getString("Val") + "|");
-			}
-			// 1_661706053|2_661706420|3_661706415|1000_1494151022|
-			String synckey = sb.toString();
-
-			// 1_661706053|2_661706420|3_661706415|1000_1494151022
-			core.getLoginInfo().put(StorageLoginInfoEnum.synckey.getKey(),
-					synckey.substring(0, synckey.length() - 1));// 1_656161336|2_656161626|3_656161313|11_656159955|13_656120033|201_1492273724|1000_1492265953|1001_1492250432|1004_1491805192
-			core.setUserName(user.getString("UserName"));
-			core.setNickName(user.getString("NickName"));
-			core.setUserSelf(obj.getJSONObject("User"));
-
-			String chatSet = obj.getString("ChatSet");
-			String[] chatSetArray = chatSet.split(",");
-			for (int i = 0; i < chatSetArray.length; i++) {
-				if (chatSetArray[i].indexOf("@@") != -1) {
-					// 更新GroupIdList
-					core.getGroupIdList().add(chatSetArray[i]); //
-				}
-			}
-			// JSONArray contactListArray = obj.getJSONArray("ContactList");
-			// for (int i = 0; i < contactListArray.size(); i++) {
-			// JSONObject o = contactListArray.getJSONObject(i);
-			// if (o.getString("UserName").indexOf("@@") != -1) {
-			// core.getGroupIdList().add(o.getString("UserName")); //
-			// // 更新GroupIdList
-			// core.getGroupList().add(o); // 更新GroupList
-			// core.getGroupNickNameList().add(o.getString("NickName"));
-			// }
-			// }
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	public void wxStatusNotify() {
-		// 组装请求URL和参数
-		String url = String.format(URLEnum.STATUS_NOTIFY_URL.getUrl(), core
-				.getLoginInfo().get(StorageLoginInfoEnum.pass_ticket.getKey()));
-
-		Map<String, Object> paramMap = core.getParamMap();
-		paramMap.put(StatusNotifyParaEnum.CODE.para(),
-				StatusNotifyParaEnum.CODE.value());
-		paramMap.put(StatusNotifyParaEnum.FROM_USERNAME.para(),
-				core.getUserName());
-		paramMap.put(StatusNotifyParaEnum.TO_USERNAME.para(),
-				core.getUserName());
-		paramMap.put(StatusNotifyParaEnum.CLIENT_MSG_ID.para(),
-				System.currentTimeMillis());
-		String paramStr = JSON.toJSONString(paramMap);
-
-		try {
-			HttpEntity entity = httpClient.doPost(url, paramStr);
-			EntityUtils.toString(entity, Consts.UTF_8);
-		} catch (Exception e) {
-			LOG.error("微信状态通知接口失败！", e);
-		}
-
 	}
 
 	@Override
@@ -477,6 +562,94 @@ public class LoginServiceImpl implements ILoginService {
 
 	}
 
+	/**
+	 * 检查是否有新消息 check whether there's a message
+	 *
+	 * @return
+	 * @author https://github.com/yaphone
+	 * @date 2017年4月16日 上午11:11:34
+	 */
+	private Map<String, String> syncCheck() {
+		Map<String, String> resultMap = new HashMap<String, String>();
+		// 组装请求URL和参数
+		String url = core.getLoginInfo().get(
+				StorageLoginInfoEnum.syncUrl.getKey())
+				+ URLEnum.SYNC_CHECK_URL.getUrl();
+		List<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
+		for (BaseParaEnum baseRequest : BaseParaEnum.values()) {
+			params.add(new BasicNameValuePair(baseRequest.para().toLowerCase(),
+					core.getLoginInfo().get(baseRequest.value()).toString()));
+		}
+		params.add(new BasicNameValuePair("r", String.valueOf(new Date()
+				.getTime())));
+		params.add(new BasicNameValuePair("synckey", (String) core
+				.getLoginInfo().get("synckey")));
+		params.add(new BasicNameValuePair("_", String.valueOf(new Date()
+				.getTime())));
+		SleepUtils.sleep(7);
+		try {
+			HttpEntity entity = myHttpClient.doGet(url, params, true, null);
+			if (entity == null) {
+				resultMap.put("retcode", "9999");
+				resultMap.put("selector", "9999");
+				return resultMap;
+			}
+			String text = EntityUtils.toString(entity);
+			String regEx = "window.synccheck=\\{retcode:\"(\\d+)\",selector:\"(\\d+)\"\\}";
+			Matcher matcher = CommonTools.getMatcher(regEx, text);
+			if (!matcher.find() || matcher.group(1).equals("2")) {
+				LOG.info(String
+						.format("Unexpected sync check result: %s", text));
+			} else {
+				resultMap.put("retcode", matcher.group(1));
+				resultMap.put("selector", matcher.group(2));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resultMap;
+	}
+
+	@Override
+	public void WebWxBatchGetContact() {
+		String url = String.format(
+				URLEnum.WEB_WX_BATCH_GET_CONTACT.getUrl(),
+				core.getLoginInfo().get(StorageLoginInfoEnum.url.getKey()),
+				new Date().getTime(),
+				core.getLoginInfo().get(
+						StorageLoginInfoEnum.pass_ticket.getKey()));
+		Map<String, Object> paramMap = core.getParamMap();
+		paramMap.put("Count", core.getGroupIdList().size());
+		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+		for (int i = 0; i < core.getGroupIdList().size(); i++) {
+			HashMap<String, String> map = new HashMap<String, String>();
+			map.put("UserName", core.getGroupIdList().get(i));
+			map.put("EncryChatRoomId", "");
+			list.add(map);
+		}
+		paramMap.put("List", list);
+		HttpEntity entity = httpClient.doPost(url, JSON.toJSONString(paramMap));
+		try {
+			String text = EntityUtils.toString(entity, Consts.UTF_8);
+			JSONObject obj = JSON.parseObject(text);
+			JSONArray contactList = obj.getJSONArray("ContactList");
+			for (int i = 0; i < contactList.size(); i++) { // 群好友
+				if (contactList.getJSONObject(i).getString("UserName")
+						.indexOf("@@") > -1) { // 群
+					core.getGroupNickNameList().add(
+							contactList.getJSONObject(i).getString("NickName")); // 更新群昵称列表
+					core.getGroupList().add(contactList.getJSONObject(i)); // 更新群信息（所有）列表
+					core.getGroupMemeberMap().put(
+							contactList.getJSONObject(i).getString("UserName"),
+							contactList.getJSONObject(i).getJSONArray(
+									"MemberList")); // 更新群成员Map
+				}
+			}
+		} catch (Exception e) {
+			LOG.info(e.getMessage());
+		}
+	}
+
 	@Override
 	public void webWxGetContact() {
 		String url = String.format(URLEnum.WEB_WX_GET_CONTACT.getUrl(), core
@@ -555,210 +728,74 @@ public class LoginServiceImpl implements ILoginService {
 	}
 
 	@Override
-	public void WebWxBatchGetContact() {
-		String url = String.format(
-				URLEnum.WEB_WX_BATCH_GET_CONTACT.getUrl(),
-				core.getLoginInfo().get(StorageLoginInfoEnum.url.getKey()),
-				new Date().getTime(),
-				core.getLoginInfo().get(
-						StorageLoginInfoEnum.pass_ticket.getKey()));
+	public boolean webWxInit() {
+		core.setAlive(true);
+		core.setLastNormalRetcodeTime(System.currentTimeMillis());
+		// 组装请求URL和参数
+		String url = String.format(URLEnum.INIT_URL.getUrl(), core
+				.getLoginInfo().get(StorageLoginInfoEnum.url.getKey()), String
+				.valueOf(System.currentTimeMillis() / 3158L), core
+				.getLoginInfo().get(StorageLoginInfoEnum.pass_ticket.getKey()));
+
 		Map<String, Object> paramMap = core.getParamMap();
-		paramMap.put("Count", core.getGroupIdList().size());
-		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
-		for (int i = 0; i < core.getGroupIdList().size(); i++) {
-			HashMap<String, String> map = new HashMap<String, String>();
-			map.put("UserName", core.getGroupIdList().get(i));
-			map.put("EncryChatRoomId", "");
-			list.add(map);
-		}
-		paramMap.put("List", list);
+
+		// 请求初始化接口
 		HttpEntity entity = httpClient.doPost(url, JSON.toJSONString(paramMap));
 		try {
-			String text = EntityUtils.toString(entity, Consts.UTF_8);
-			JSONObject obj = JSON.parseObject(text);
-			JSONArray contactList = obj.getJSONArray("ContactList");
-			for (int i = 0; i < contactList.size(); i++) { // 群好友
-				if (contactList.getJSONObject(i).getString("UserName")
-						.indexOf("@@") > -1) { // 群
-					core.getGroupNickNameList().add(
-							contactList.getJSONObject(i).getString("NickName")); // 更新群昵称列表
-					core.getGroupList().add(contactList.getJSONObject(i)); // 更新群信息（所有）列表
-					core.getGroupMemeberMap().put(
-							contactList.getJSONObject(i).getString("UserName"),
-							contactList.getJSONObject(i).getJSONArray(
-									"MemberList")); // 更新群成员Map
-				}
-			}
-		} catch (Exception e) {
-			LOG.info(e.getMessage());
-		}
-	}
+			String result = EntityUtils.toString(entity, Consts.UTF_8);
+			JSONObject obj = JSON.parseObject(result);
 
-	/**
-	 * 检查登陆状态
-	 *
-	 * @param result
-	 * @return
-	 */
-	public String checklogin(String result) {
-		String regEx = "window.code=(\\d+)";
-		Matcher matcher = CommonTools.getMatcher(regEx, result);
-		if (matcher.find()) {
-			return matcher.group(1);
-		}
-		return null;
-	}
+			JSONObject user = obj.getJSONObject(StorageLoginInfoEnum.User
+					.getKey());
+			JSONObject syncKey = obj.getJSONObject(StorageLoginInfoEnum.SyncKey
+					.getKey());
 
-	/**
-	 * 处理登陆信息
-	 *
-	 * @param result
-	 * @author https://github.com/yaphone
-	 * @date 2017年4月9日 下午12:16:26
-	 */
-	private void processLoginInfo(String loginContent) {
-		String regEx = "window.redirect_uri=\"(\\S+)\";";
-		Matcher matcher = CommonTools.getMatcher(regEx, loginContent);
-		if (matcher.find()) {
-			String originalUrl = matcher.group(1);
-			String url = originalUrl.substring(0, originalUrl.lastIndexOf('/')); // https://wx2.qq.com/cgi-bin/mmwebwx-bin
-			core.getLoginInfo().put("url", url);
-			Map<String, List<String>> possibleUrlMap = this.getPossibleUrlMap();
-			Iterator<Entry<String, List<String>>> iterator = possibleUrlMap
-					.entrySet().iterator();
-			Map.Entry<String, List<String>> entry;
-			String fileUrl;
-			String syncUrl;
-			while (iterator.hasNext()) {
-				entry = iterator.next();
-				String indexUrl = entry.getKey();
-				fileUrl = "https://" + entry.getValue().get(0)
-						+ "/cgi-bin/mmwebwx-bin";
-				syncUrl = "https://" + entry.getValue().get(1)
-						+ "/cgi-bin/mmwebwx-bin";
-				if (core.getLoginInfo().get("url").toString()
-						.contains(indexUrl)) {
-					core.setIndexUrl(indexUrl);
-					core.getLoginInfo().put("fileUrl", fileUrl);
-					core.getLoginInfo().put("syncUrl", syncUrl);
-					break;
-				}
-			}
-			if (core.getLoginInfo().get("fileUrl") == null
-					&& core.getLoginInfo().get("syncUrl") == null) {
-				core.getLoginInfo().put("fileUrl", url);
-				core.getLoginInfo().put("syncUrl", url);
-			}
 			core.getLoginInfo().put(
-					"deviceid",
-					"e"
-							+ String.valueOf(new Random().nextLong())
-									.substring(1, 16)); // 生成15位随机数
-			core.getLoginInfo().put("BaseRequest", new ArrayList<String>());
-			String text = "";
+					StorageLoginInfoEnum.InviteStartCount.getKey(),
+					obj.getInteger(StorageLoginInfoEnum.InviteStartCount
+							.getKey()));
+			core.getLoginInfo().put(StorageLoginInfoEnum.SyncKey.getKey(),
+					syncKey);
 
-			try {
-				HttpEntity entity = myHttpClient.doGet(originalUrl, null,
-						false, null);
-				text = EntityUtils.toString(entity);
-			} catch (Exception e) {
-				LOG.info(e.getMessage());
-				return;
+			JSONArray syncArray = syncKey.getJSONArray("List");
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < syncArray.size(); i++) {
+				sb.append(syncArray.getJSONObject(i).getString("Key") + "_"
+						+ syncArray.getJSONObject(i).getString("Val") + "|");
 			}
-			// add by 默非默 2017-08-01 22:28:09
-			// 如果登录被禁止时，则登录返回的message内容不为空，下面代码则判断登录内容是否为空，不为空则退出程序
-			String msg = getLoginMessage(text);
-			if (!"".equals(msg)) {
-				LOG.info(msg);
-				System.exit(0);
-			}
-			Document doc = CommonTools.xmlParser(text);
-			if (doc != null) {
-				core.getLoginInfo().put(
-						StorageLoginInfoEnum.skey.getKey(),
-						doc.getElementsByTagName(
-								StorageLoginInfoEnum.skey.getKey()).item(0)
-								.getFirstChild().getNodeValue());
-				core.getLoginInfo().put(
-						StorageLoginInfoEnum.wxsid.getKey(),
-						doc.getElementsByTagName(
-								StorageLoginInfoEnum.wxsid.getKey()).item(0)
-								.getFirstChild().getNodeValue());
-				core.getLoginInfo().put(
-						StorageLoginInfoEnum.wxuin.getKey(),
-						doc.getElementsByTagName(
-								StorageLoginInfoEnum.wxuin.getKey()).item(0)
-								.getFirstChild().getNodeValue());
-				core.getLoginInfo().put(
-						StorageLoginInfoEnum.pass_ticket.getKey(),
-						doc.getElementsByTagName(
-								StorageLoginInfoEnum.pass_ticket.getKey())
-								.item(0).getFirstChild().getNodeValue());
-			}
+			// 1_661706053|2_661706420|3_661706415|1000_1494151022|
+			String synckey = sb.toString();
 
+			// 1_661706053|2_661706420|3_661706415|1000_1494151022
+			core.getLoginInfo().put(StorageLoginInfoEnum.synckey.getKey(),
+					synckey.substring(0, synckey.length() - 1));// 1_656161336|2_656161626|3_656161313|11_656159955|13_656120033|201_1492273724|1000_1492265953|1001_1492250432|1004_1491805192
+			core.setUserName(user.getString("UserName"));
+			core.setNickName(user.getString("NickName"));
+			core.setUserSelf(obj.getJSONObject("User"));
+
+			String chatSet = obj.getString("ChatSet");
+			String[] chatSetArray = chatSet.split(",");
+			for (int i = 0; i < chatSetArray.length; i++) {
+				if (chatSetArray[i].indexOf("@@") != -1) {
+					// 更新GroupIdList
+					core.getGroupIdList().add(chatSetArray[i]); //
+				}
+			}
+			// JSONArray contactListArray = obj.getJSONArray("ContactList");
+			// for (int i = 0; i < contactListArray.size(); i++) {
+			// JSONObject o = contactListArray.getJSONObject(i);
+			// if (o.getString("UserName").indexOf("@@") != -1) {
+			// core.getGroupIdList().add(o.getString("UserName")); //
+			// // 更新GroupIdList
+			// core.getGroupList().add(o); // 更新GroupList
+			// core.getGroupNickNameList().add(o.getString("NickName"));
+			// }
+			// }
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
 		}
-	}
-
-	private Map<String, List<String>> getPossibleUrlMap() {
-		Map<String, List<String>> possibleUrlMap = new HashMap<String, List<String>>();
-		possibleUrlMap.put("wx.qq.com", new ArrayList<String>() {
-			/**
-             *
-             */
-			private static final long serialVersionUID = 1L;
-
-			{
-				add("file.wx.qq.com");
-				add("webpush.wx.qq.com");
-			}
-		});
-
-		possibleUrlMap.put("wx2.qq.com", new ArrayList<String>() {
-			/**
-             *
-             */
-			private static final long serialVersionUID = 1L;
-
-			{
-				add("file.wx2.qq.com");
-				add("webpush.wx2.qq.com");
-			}
-		});
-		possibleUrlMap.put("wx8.qq.com", new ArrayList<String>() {
-			/**
-             *
-             */
-			private static final long serialVersionUID = 1L;
-
-			{
-				add("file.wx8.qq.com");
-				add("webpush.wx8.qq.com");
-			}
-		});
-
-		possibleUrlMap.put("web2.wechat.com", new ArrayList<String>() {
-			/**
-             *
-             */
-			private static final long serialVersionUID = 1L;
-
-			{
-				add("file.web2.wechat.com");
-				add("webpush.web2.wechat.com");
-			}
-		});
-		possibleUrlMap.put("wechat.com", new ArrayList<String>() {
-			/**
-             *
-             */
-			private static final long serialVersionUID = 1L;
-
-			{
-				add("file.web.wechat.com");
-				add("webpush.web.wechat.com");
-			}
-		});
-		return possibleUrlMap;
+		return true;
 	}
 
 	/**
@@ -810,66 +847,29 @@ public class LoginServiceImpl implements ILoginService {
 
 	}
 
-	/**
-	 * 检查是否有新消息 check whether there's a message
-	 *
-	 * @return
-	 * @author https://github.com/yaphone
-	 * @date 2017年4月16日 上午11:11:34
-	 */
-	private Map<String, String> syncCheck() {
-		Map<String, String> resultMap = new HashMap<String, String>();
+	@Override
+	public void wxStatusNotify() {
 		// 组装请求URL和参数
-		String url = core.getLoginInfo().get(
-				StorageLoginInfoEnum.syncUrl.getKey())
-				+ URLEnum.SYNC_CHECK_URL.getUrl();
-		List<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
-		for (BaseParaEnum baseRequest : BaseParaEnum.values()) {
-			params.add(new BasicNameValuePair(baseRequest.para().toLowerCase(),
-					core.getLoginInfo().get(baseRequest.value()).toString()));
-		}
-		params.add(new BasicNameValuePair("r", String.valueOf(new Date()
-				.getTime())));
-		params.add(new BasicNameValuePair("synckey", (String) core
-				.getLoginInfo().get("synckey")));
-		params.add(new BasicNameValuePair("_", String.valueOf(new Date()
-				.getTime())));
-		SleepUtils.sleep(7);
-		try {
-			HttpEntity entity = myHttpClient.doGet(url, params, true, null);
-			if (entity == null) {
-				resultMap.put("retcode", "9999");
-				resultMap.put("selector", "9999");
-				return resultMap;
-			}
-			String text = EntityUtils.toString(entity);
-			String regEx = "window.synccheck=\\{retcode:\"(\\d+)\",selector:\"(\\d+)\"\\}";
-			Matcher matcher = CommonTools.getMatcher(regEx, text);
-			if (!matcher.find() || matcher.group(1).equals("2")) {
-				LOG.info(String
-						.format("Unexpected sync check result: %s", text));
-			} else {
-				resultMap.put("retcode", matcher.group(1));
-				resultMap.put("selector", matcher.group(2));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return resultMap;
-	}
+		String url = String.format(URLEnum.STATUS_NOTIFY_URL.getUrl(), core
+				.getLoginInfo().get(StorageLoginInfoEnum.pass_ticket.getKey()));
 
-	/**
-	 * 解析登录返回的消息，如果成功登录，则message为空
-	 *
-	 * @param result
-	 * @return
-	 */
-	public String getLoginMessage(String result) {
-		String[] strArr = result.split("<message>");
-		String[] rs = strArr[1].split("</message>");
-		if (rs != null && rs.length > 1) {
-			return rs[0];
+		Map<String, Object> paramMap = core.getParamMap();
+		paramMap.put(StatusNotifyParaEnum.CODE.para(),
+				StatusNotifyParaEnum.CODE.value());
+		paramMap.put(StatusNotifyParaEnum.FROM_USERNAME.para(),
+				core.getUserName());
+		paramMap.put(StatusNotifyParaEnum.TO_USERNAME.para(),
+				core.getUserName());
+		paramMap.put(StatusNotifyParaEnum.CLIENT_MSG_ID.para(),
+				System.currentTimeMillis());
+		String paramStr = JSON.toJSONString(paramMap);
+
+		try {
+			HttpEntity entity = httpClient.doPost(url, paramStr);
+			EntityUtils.toString(entity, Consts.UTF_8);
+		} catch (Exception e) {
+			LOG.error("微信状态通知接口失败！", e);
 		}
-		return "";
+
 	}
 }

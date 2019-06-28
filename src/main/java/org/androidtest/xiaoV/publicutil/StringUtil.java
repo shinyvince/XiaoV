@@ -14,6 +14,46 @@ public class StringUtil {
 	}
 
 	/**
+	 * 获取当前系统时间，并按指定格式返回
+	 *
+	 * @return
+	 */
+	public static String getCurrentSystemTimeWithFileFormat() {
+		return Constant.SIMPLE_DATE_FORMAT_FILE.format(new Date());
+	}
+
+	public static boolean ifNotNullOrEmpty(Object object) {
+		boolean isTrue = false;
+		if (object != null) {
+			if (!object.equals("")) {
+				isTrue = true;
+
+			}
+		}
+		return isTrue;
+	}
+
+	public static boolean ifNullOrEmpty(Object object) {
+		boolean isTrue = object == null || object.equals("");
+		return isTrue;
+	}
+
+	public static String ifNullOrEmptyReturnUnknown(String data) {
+		if (data == null || data.equals("")) {
+			data = "unknown";
+		}
+		return data;
+	}
+
+	public static String returnOnlyString(String data) {
+		return data.split(Constant.CMD_RESULT_SPLIT)[0];
+	}
+
+	public static String returnUnknown() {
+		return "unknown";
+	}
+
+	/**
 	 * 去除首尾指定字符
 	 *
 	 * @param str
@@ -34,45 +74,5 @@ public class StringUtil {
 			endIndexFlag = (str.lastIndexOf(element) + 1 == str.length());
 		} while (beginIndexFlag || endIndexFlag);
 		return str;
-	}
-
-	/**
-	 * 获取当前系统时间，并按指定格式返回
-	 *
-	 * @return
-	 */
-	public static String getCurrentSystemTimeWithFileFormat() {
-		return Constant.SIMPLE_DATE_FORMAT_FILE.format(new Date());
-	}
-
-	public static boolean ifNullOrEmpty(Object object) {
-		boolean isTrue = object == null || object.equals("");
-		return isTrue;
-	}
-
-	public static boolean ifNotNullOrEmpty(Object object) {
-		boolean isTrue = false;
-		if (object != null) {
-			if (!object.equals("")) {
-				isTrue = true;
-
-			}
-		}
-		return isTrue;
-	}
-
-	public static String ifNullOrEmptyReturnUnknown(String data) {
-		if (data == null || data.equals("")) {
-			data = "unknown";
-		}
-		return data;
-	}
-
-	public static String returnOnlyString(String data) {
-		return data.split(Constant.CMD_RESULT_SPLIT)[0];
-	}
-
-	public static String returnUnknown() {
-		return "unknown";
 	}
 }

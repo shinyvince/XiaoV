@@ -1,6 +1,9 @@
 package org.androidtest.xiaoV.action;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.androidtest.xiaoV.data.Group;
 
@@ -14,6 +17,11 @@ import cn.zhouyafeng.itchat4j.utils.enums.MsgTypeEnum;
  *
  */
 public abstract class Action {
+	private Map<String, MsgTypeEnum> vailKeywordMap;
+
+	protected Action(Map<String, MsgTypeEnum> vailKeywordMap) {
+		setVailKeywordMap(vailKeywordMap);
+	}
 
 	/**
 	 * 对行为执行反应
@@ -25,12 +33,29 @@ public abstract class Action {
 	public abstract String action(Group group, BaseMsg msg);
 
 	/**
-	 * 播报
+	 * 返回该类的合法关键字列表
 	 * 
-	 * @param group
-	 * @return
+	 * @param type
 	 */
-	public abstract String report(Group group);
+	@SuppressWarnings("rawtypes")
+	public List<String> getVaildKeywords(MsgTypeEnum type) {
+		List<String> list = new ArrayList<String>();
+
+		Iterator iter = getVailKeywordMap().entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			String vaildKeyword = (String) entry.getKey();
+			MsgTypeEnum vaildType = (MsgTypeEnum) entry.getValue();
+			if (vaildType == type) {
+				list.add(vaildKeyword);
+			}
+		}
+		return list;
+	}
+
+	private Map<String, MsgTypeEnum> getVailKeywordMap() {
+		return vailKeywordMap;
+	}
 
 	/**
 	 * 广播
@@ -41,9 +66,14 @@ public abstract class Action {
 	public abstract boolean notify(Group group);
 
 	/**
-	 * 返回该类的合法关键字列表
+	 * 播报
 	 * 
-	 * @param type
+	 * @param group
+	 * @return
 	 */
-	public abstract List<String> getVaildKeywords(MsgTypeEnum type);
+	public abstract String report(Group group);
+
+	private void setVailKeywordMap(Map<String, MsgTypeEnum> vailKeywordMap) {
+		this.vailKeywordMap = vailKeywordMap;
+	}
 }

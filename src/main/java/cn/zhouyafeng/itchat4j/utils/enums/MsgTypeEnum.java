@@ -20,12 +20,12 @@ public enum MsgTypeEnum {
 		this.code = code;
 	}
 
-	public String getType() {
-		return type;
-	}
-
 	public String getCode() {
 		return code;
+	}
+
+	public String getType() {
+		return type;
 	}
 
 }

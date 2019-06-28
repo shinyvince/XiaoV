@@ -13,15 +13,22 @@ import org.androidtest.xiaoV.publicutil.DateUtil;
 
 public class ActionFactory {
 
-	public static DailyStepClockIn createDailyStepClockIn() {
-		DailyStepClockIn action = new DailyStepClockIn(7);
+	public static DailySelfReflectionAction createDailySelfReflectionAction(
+			Map<String, File> whiteList, boolean noonRemind) {
+		DailySelfReflectionAction action = null;
+		if (Config.DEBUG) {
+			action = new DailySelfReflectionAction(whiteList,
+					DateUtil.getCurrentTime() + 5,
+					DateUtil.getCurrentTime() + 7);
+		} else {
+			action = new DailySelfReflectionAction(whiteList, noonRemind);
+		}
+
 		return action;
 	}
 
-	public static WeeklySportClockIn createWeeklySportClockIn(
-			int week_sport_limit_times) {
-		WeeklySportClockIn action = new WeeklySportClockIn(
-				week_sport_limit_times);
+	public static DailyStepClockIn createDailyStepClockIn() {
+		DailyStepClockIn action = new DailyStepClockIn(7);
 		return action;
 	}
 
@@ -48,17 +55,10 @@ public class ActionFactory {
 		return action;
 	}
 
-	public static DailySelfReflectionAction createDailySelfReflectionAction(
-			Map<String, File> whiteList, boolean noonRemind) {
-		DailySelfReflectionAction action = null;
-		if (Config.DEBUG) {
-			action = new DailySelfReflectionAction(whiteList,
-					DateUtil.getCurrentTime() + 5,
-					DateUtil.getCurrentTime() + 7);
-		} else {
-			action = new DailySelfReflectionAction(whiteList, noonRemind);
-		}
-
+	public static WeeklySportClockIn createWeeklySportClockIn(
+			int week_sport_limit_times) {
+		WeeklySportClockIn action = new WeeklySportClockIn(
+				week_sport_limit_times);
 		return action;
 	}
 }

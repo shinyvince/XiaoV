@@ -10,13 +10,14 @@ package cn.zhouyafeng.itchat4j.service;
 public interface ILoginService {
 
 	/**
-	 * 登陆
+	 * 获取二维码图片
 	 *
+	 * @param qrPath
 	 * @return
 	 * @author https://github.com/yaphone
-	 * @date 2017年5月13日 上午12:14:07
+	 * @date 2017年5月13日 上午12:13:51
 	 */
-	boolean login();
+	boolean getQR(String qrPath);
 
 	/**
 	 * 获取UUID
@@ -29,14 +30,36 @@ public interface ILoginService {
 	String getUuid();
 
 	/**
-	 * 获取二维码图片
+	 * 登陆
 	 *
-	 * @param qrPath
 	 * @return
 	 * @author https://github.com/yaphone
-	 * @date 2017年5月13日 上午12:13:51
+	 * @date 2017年5月13日 上午12:14:07
 	 */
-	boolean getQR(String qrPath);
+	boolean login();
+
+	/**
+	 * 接收消息
+	 *
+	 * @author https://github.com/yaphone
+	 * @date 2017年5月13日 上午12:14:37
+	 */
+	void startReceiving();
+
+	/**
+	 * 批量获取联系人信息
+	 *
+	 * @date 2017年6月22日 下午11:24:35
+	 */
+	void WebWxBatchGetContact();
+
+	/**
+	 * 获取微信联系人
+	 *
+	 * @author https://github.com/yaphone
+	 * @date 2017年5月13日 下午2:26:18
+	 */
+	void webWxGetContact();
 
 	/**
 	 * web初始化
@@ -54,28 +77,5 @@ public interface ILoginService {
 	 * @date 2017年5月13日 上午12:14:24
 	 */
 	void wxStatusNotify();
-
-	/**
-	 * 接收消息
-	 *
-	 * @author https://github.com/yaphone
-	 * @date 2017年5月13日 上午12:14:37
-	 */
-	void startReceiving();
-
-	/**
-	 * 获取微信联系人
-	 *
-	 * @author https://github.com/yaphone
-	 * @date 2017年5月13日 下午2:26:18
-	 */
-	void webWxGetContact();
-
-	/**
-	 * 批量获取联系人信息
-	 *
-	 * @date 2017年6月22日 下午11:24:35
-	 */
-	void WebWxBatchGetContact();
 
 }

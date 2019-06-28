@@ -33,22 +33,6 @@ public class Wechat {
 		login.login(Constant.OUTPUT_PATH.getAbsolutePath());
 	}
 
-	public void start() {
-		LOG.info("+++++++++++++++++++开始消息处理+++++++++++++++++++++");
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				MsgCenter.handleMsg(msgHandler);
-			}
-		}).start();
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				setBoardcastListener();
-			}
-		}).start();
-	}
-
 	private void setBoardcastListener() {
 		while (true) {
 			boolean isReported = false;
@@ -76,5 +60,21 @@ public class Wechat {
 				}
 			}
 		}
+	}
+
+	public void start() {
+		LOG.info("+++++++++++++++++++开始消息处理+++++++++++++++++++++");
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				MsgCenter.handleMsg(msgHandler);
+			}
+		}).start();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				setBoardcastListener();
+			}
+		}).start();
 	}
 }

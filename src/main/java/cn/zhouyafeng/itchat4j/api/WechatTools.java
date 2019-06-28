@@ -33,39 +33,28 @@ public class WechatTools {
 	private static Core core = Core.getInstance();
 
 	/**
-	 * 根据用户名发送文本消息
+	 * 返回好友完整信息列表
 	 *
-	 * @param msg
-	 * @param toUserName
-	 * @author https://github.com/yaphone
-	 * @date 2017年5月4日 下午10:43:14
+	 * @return
+	 * @date 2017年6月26日 下午9:45:39
 	 */
-	public static void sendMsgByUserName(String msg, String toUserName) {
-		MessageTools.sendMsgById(msg, toUserName);
+	public static List<JSONObject> getContactList() {
+		return core.getContactList();
 	}
 
 	/**
-	 * <p>
-	 * 通过RealName获取本次UserName
-	 * </p>
-	 * <p>
-	 * 如NickName为"yaphone"，则获取UserName=
-	 * "@1212d3356aea8285e5bbe7b91229936bc183780a8ffa469f2d638bf0d2e4fc63"，
-	 * 可通过UserName发送消息
-	 * </p>
+	 * 返回好友昵称列表
 	 *
-	 * @param name
 	 * @return
 	 * @author https://github.com/yaphone
-	 * @date 2017年5月4日 下午10:56:31
+	 * @date 2017年5月4日 下午11:37:20
 	 */
-	public static String getUserNameByNickName(String nickName) {
+	public static List<String> getContactNickNameList() {
+		List<String> contactNickNameList = new ArrayList<String>();
 		for (JSONObject o : core.getContactList()) {
-			if (o.getString("NickName").equals(nickName)) {
-				return o.getString("UserName");
-			}
+			contactNickNameList.add(o.getString("NickName"));
 		}
-		return null;
+		return contactNickNameList;
 	}
 
 	public static String getDisplayNameByUserName(String userName) {
@@ -75,6 +64,149 @@ public class WechatTools {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * 获取群ID列表
+	 *
+	 * @return
+	 * @date 2017年6月21日 下午11:42:56
+	 */
+	public static List<String> getGroupIdList() {
+		return core.getGroupIdList();
+	}
+
+	/**
+	 * 返回群列表
+	 *
+	 * @return
+	 * @author https://github.com/yaphone
+	 * @date 2017年5月5日 下午9:55:21
+	 */
+	public static List<JSONObject> getGroupList() {
+		return core.getGroupList();
+	}
+
+	public static String getGroupNameByGroupNickName(String nickName) {
+		for (JSONObject o : core.getGroupList()) {
+			if (o.getString("NickName").equals(nickName)) {
+				return o.getString("UserName");
+			}
+		}
+		return null;
+	}
+
+	public static String getGroupNickNameByGroupUserName(String userName) {
+		for (JSONObject o : core.getGroupList()) {
+			if (o.getString("UserName").equals(userName)) {
+				return o.getString("NickName");
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 获取群NickName列表
+	 *
+	 * @return
+	 * @date 2017年6月21日 下午11:43:38
+	 */
+	public static List<String> getGroupNickNameList() {
+		return core.getGroupNickNameList();
+	}
+
+	public static String getMemberDisplayNameByGroupNickName(
+			String groupNickName, String userName) {
+		List<JSONObject> groupList = getGroupList();
+		for (JSONObject js : groupList) {
+			if (js.containsValue(groupNickName)) {
+				JSONArray mem = js.getJSONArray("MemberList");
+				for (int i = 0; i < mem.size(); i++) {
+					if (mem.getJSONObject(i).getString("UserName").trim()
+							.equals(userName)) {
+						return mem.getJSONObject(i).getString("DisplayName");
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	public static String getMemberDisplayOrNickNameByGroupNickName(
+			String currentGroupNickName, String userName) {
+		String nickName = null;
+		nickName = WechatTools.getMemberDisplayNameByGroupNickName(
+				currentGroupNickName, userName);
+		if (nickName == null || nickName.equals("")) {
+			nickName = WechatTools.getMemberNickNameByGroupNickName(
+					currentGroupNickName, userName);
+		}
+		return nickName;
+	}
+
+	/**
+	 * 根据groupIdList返回群成员列表
+	 *
+	 * @param groupId
+	 * @return
+	 * @date 2017年6月13日 下午11:12:31
+	 */
+	public static JSONArray getMemberJsonArrayByGroupId(String groupId) {
+		return core.getGroupMemeberMap().get(groupId);
+	}
+
+	@Deprecated
+	public static List<String> getMemberListByGroupId(String groupId) {
+		JSONArray mem = core.getGroupMemeberMap().get(groupId);
+		System.out.println(mem);
+		List<String> result = new ArrayList<String>();
+		for (int i = 0; i < mem.size(); i++) {
+			if (mem.getJSONObject(i).getString("NickName")
+					.equals(Core.getInstance().getNickName())) {
+				continue;
+			}
+			result.add(mem.getJSONObject(i).getString("NickName"));
+		}
+		return result;
+	}
+
+	public static List<String> getMemberListByGroupId2(String groupId) {
+		JSONArray mem = core.getGroupMemeberMap().get(groupId);
+		System.out.println(mem);
+		List<String> result = new ArrayList<String>();
+		for (int i = 0; i < mem.size(); i++) {
+			if (mem.getJSONObject(i).getString("NickName")
+					.equals(Core.getInstance().getNickName())) {
+				continue;
+			}
+			String name = mem.getJSONObject(i).getString("DisplayName");
+			if (null == name || name.equals("")) {
+				name = mem.getJSONObject(i).getString("NickName");
+			}
+			result.add(name);
+		}
+		return result;
+	}
+
+	@Deprecated
+	public static List<String> getMemberListByGroupNickName(String groupNickName) {
+		List<JSONObject> groupList = getGroupList();
+		List<String> result = null;
+		for (JSONObject js : groupList) {
+			if (js.containsValue(groupNickName)) {
+				JSONArray mem = js.getJSONArray("MemberList");
+				result = new ArrayList<String>();
+				for (int i = 0; i < mem.size(); i++) {
+					if (mem.getJSONObject(i).getString("NickName")
+							.equals(Core.getInstance().getNickName())) {
+						continue;
+					}
+					result.add(mem.getJSONObject(i).getString("NickName"));
+				}
+				break;
+			}
+		}
+		return result;
 	}
 
 	public static List<String> getMemberListByGroupNickName2(
@@ -102,136 +234,6 @@ public class WechatTools {
 		return result;
 	}
 
-	public static String getMemberDisplayNameByGroupNickName(
-			String groupNickName, String userName) {
-		List<JSONObject> groupList = getGroupList();
-		for (JSONObject js : groupList) {
-			if (js.containsValue(groupNickName)) {
-				JSONArray mem = js.getJSONArray("MemberList");
-				for (int i = 0; i < mem.size(); i++) {
-					if (mem.getJSONObject(i).getString("UserName").trim()
-							.equals(userName)) {
-						return mem.getJSONObject(i).getString("DisplayName");
-					}
-				}
-			}
-		}
-		return null;
-	}
-
-	public static List<String> getMemberListByGroupId2(String groupId) {
-		JSONArray mem = core.getGroupMemeberMap().get(groupId);
-		System.out.println(mem);
-		List<String> result = new ArrayList<String>();
-		for (int i = 0; i < mem.size(); i++) {
-			if (mem.getJSONObject(i).getString("NickName")
-					.equals(Core.getInstance().getNickName())) {
-				continue;
-			}
-			String name = mem.getJSONObject(i).getString("DisplayName");
-			if (null == name || name.equals("")) {
-				name = mem.getJSONObject(i).getString("NickName");
-			}
-			result.add(name);
-		}
-		return result;
-	}
-
-	public static String getNickNameByUserName(String userName) {
-		for (JSONObject o : core.getContactList()) {
-			if (o.getString("UserName").equals(userName)) {
-				return o.getString("NickName");
-			}
-		}
-		return null;
-	}
-
-	public static String getGroupNameByGroupNickName(String nickName) {
-		for (JSONObject o : core.getGroupList()) {
-			if (o.getString("NickName").equals(nickName)) {
-				return o.getString("UserName");
-			}
-		}
-		return null;
-	}
-
-	public static String getGroupNickNameByGroupUserName(String userName) {
-		for (JSONObject o : core.getGroupList()) {
-			if (o.getString("UserName").equals(userName)) {
-				return o.getString("NickName");
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * 返回好友昵称列表
-	 *
-	 * @return
-	 * @author https://github.com/yaphone
-	 * @date 2017年5月4日 下午11:37:20
-	 */
-	public static List<String> getContactNickNameList() {
-		List<String> contactNickNameList = new ArrayList<String>();
-		for (JSONObject o : core.getContactList()) {
-			contactNickNameList.add(o.getString("NickName"));
-		}
-		return contactNickNameList;
-	}
-
-	/**
-	 * 返回好友完整信息列表
-	 *
-	 * @return
-	 * @date 2017年6月26日 下午9:45:39
-	 */
-	public static List<JSONObject> getContactList() {
-		return core.getContactList();
-	}
-
-	/**
-	 * 返回群列表
-	 *
-	 * @return
-	 * @author https://github.com/yaphone
-	 * @date 2017年5月5日 下午9:55:21
-	 */
-	public static List<JSONObject> getGroupList() {
-		return core.getGroupList();
-	}
-
-	/**
-	 * 获取群ID列表
-	 *
-	 * @return
-	 * @date 2017年6月21日 下午11:42:56
-	 */
-	public static List<String> getGroupIdList() {
-		return core.getGroupIdList();
-	}
-
-	/**
-	 * 获取群NickName列表
-	 *
-	 * @return
-	 * @date 2017年6月21日 下午11:43:38
-	 */
-	public static List<String> getGroupNickNameList() {
-		return core.getGroupNickNameList();
-	}
-
-	public static String getMemberDisplayOrNickNameByGroupNickName(
-			String currentGroupNickName, String userName) {
-		String nickName = null;
-		nickName = WechatTools.getMemberDisplayNameByGroupNickName(
-				currentGroupNickName, userName);
-		if (nickName == null || nickName.equals("")) {
-			nickName = WechatTools.getMemberNickNameByGroupNickName(
-					currentGroupNickName, userName);
-		}
-		return nickName;
-	}
-
 	public static String getMemberNickNameByGroupNickName(String groupNickName,
 			String userName) {
 		List<JSONObject> groupList = getGroupList();
@@ -249,51 +251,47 @@ public class WechatTools {
 		return null;
 	}
 
-	@Deprecated
-	public static List<String> getMemberListByGroupNickName(String groupNickName) {
-		List<JSONObject> groupList = getGroupList();
-		List<String> result = null;
-		for (JSONObject js : groupList) {
-			if (js.containsValue(groupNickName)) {
-				JSONArray mem = js.getJSONArray("MemberList");
-				result = new ArrayList<String>();
-				for (int i = 0; i < mem.size(); i++) {
-					if (mem.getJSONObject(i).getString("NickName")
-							.equals(Core.getInstance().getNickName())) {
-						continue;
-					}
-					result.add(mem.getJSONObject(i).getString("NickName"));
-				}
-				break;
+	public static String getNickNameByUserName(String userName) {
+		for (JSONObject o : core.getContactList()) {
+			if (o.getString("UserName").equals(userName)) {
+				return o.getString("NickName");
 			}
 		}
-		return result;
-	}
-
-	@Deprecated
-	public static List<String> getMemberListByGroupId(String groupId) {
-		JSONArray mem = core.getGroupMemeberMap().get(groupId);
-		System.out.println(mem);
-		List<String> result = new ArrayList<String>();
-		for (int i = 0; i < mem.size(); i++) {
-			if (mem.getJSONObject(i).getString("NickName")
-					.equals(Core.getInstance().getNickName())) {
-				continue;
-			}
-			result.add(mem.getJSONObject(i).getString("NickName"));
-		}
-		return result;
+		return null;
 	}
 
 	/**
-	 * 根据groupIdList返回群成员列表
+	 * <p>
+	 * 通过RealName获取本次UserName
+	 * </p>
+	 * <p>
+	 * 如NickName为"yaphone"，则获取UserName=
+	 * "@1212d3356aea8285e5bbe7b91229936bc183780a8ffa469f2d638bf0d2e4fc63"，
+	 * 可通过UserName发送消息
+	 * </p>
 	 *
-	 * @param groupId
+	 * @param name
 	 * @return
-	 * @date 2017年6月13日 下午11:12:31
+	 * @author https://github.com/yaphone
+	 * @date 2017年5月4日 下午10:56:31
 	 */
-	public static JSONArray getMemberJsonArrayByGroupId(String groupId) {
-		return core.getGroupMemeberMap().get(groupId);
+	public static String getUserNameByNickName(String nickName) {
+		for (JSONObject o : core.getContactList()) {
+			if (o.getString("NickName").equals(nickName)) {
+				return o.getString("UserName");
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 获取微信在线状态
+	 *
+	 * @return
+	 * @date 2017年6月16日 上午12:47:46
+	 */
+	public static boolean getWechatStatus() {
+		return core.isAlive();
 	}
 
 	/**
@@ -304,32 +302,6 @@ public class WechatTools {
 	 */
 	public static void logout() {
 		webWxLogout();
-	}
-
-	private static boolean webWxLogout() {
-		String url = String.format(URLEnum.WEB_WX_LOGOUT.getUrl(), core
-				.getLoginInfo().get(StorageLoginInfoEnum.url.getKey()));
-		List<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
-		params.add(new BasicNameValuePair("redirect", "1"));
-		params.add(new BasicNameValuePair("type", "1"));
-		params.add(new BasicNameValuePair("skey", (String) core.getLoginInfo()
-				.get(StorageLoginInfoEnum.skey.getKey())));
-		try {
-			HttpEntity entity = core.getMyHttpClient().doGet(url, params,
-					false, null);
-			String text = EntityUtils.toString(entity, Consts.UTF_8); // 无消息
-			return true;
-		} catch (Exception e) {
-			LOG.debug(e.getMessage());
-		}
-		return false;
-	}
-
-	public static void setUserInfo() {
-		for (JSONObject o : core.getContactList()) {
-			core.getUserInfoMap().put(o.getString("NickName"), o);
-			core.getUserInfoMap().put(o.getString("UserName"), o);
-		}
 	}
 
 	/**
@@ -373,13 +345,41 @@ public class WechatTools {
 	}
 
 	/**
-	 * 获取微信在线状态
+	 * 根据用户名发送文本消息
 	 *
-	 * @return
-	 * @date 2017年6月16日 上午12:47:46
+	 * @param msg
+	 * @param toUserName
+	 * @author https://github.com/yaphone
+	 * @date 2017年5月4日 下午10:43:14
 	 */
-	public static boolean getWechatStatus() {
-		return core.isAlive();
+	public static void sendMsgByUserName(String msg, String toUserName) {
+		MessageTools.sendMsgById(msg, toUserName);
+	}
+
+	public static void setUserInfo() {
+		for (JSONObject o : core.getContactList()) {
+			core.getUserInfoMap().put(o.getString("NickName"), o);
+			core.getUserInfoMap().put(o.getString("UserName"), o);
+		}
+	}
+
+	private static boolean webWxLogout() {
+		String url = String.format(URLEnum.WEB_WX_LOGOUT.getUrl(), core
+				.getLoginInfo().get(StorageLoginInfoEnum.url.getKey()));
+		List<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
+		params.add(new BasicNameValuePair("redirect", "1"));
+		params.add(new BasicNameValuePair("type", "1"));
+		params.add(new BasicNameValuePair("skey", (String) core.getLoginInfo()
+				.get(StorageLoginInfoEnum.skey.getKey())));
+		try {
+			HttpEntity entity = core.getMyHttpClient().doGet(url, params,
+					false, null);
+			String text = EntityUtils.toString(entity, Consts.UTF_8); // 无消息
+			return true;
+		} catch (Exception e) {
+			LOG.debug(e.getMessage());
+		}
+		return false;
 	}
 
 }

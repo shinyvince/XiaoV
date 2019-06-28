@@ -11,22 +11,25 @@ public class DateUtil {
 	public static final long HOUR_MILL_SECONDS = 60 * MINUTE_MILL_SECONDS;
 	public static final long DAY_MILL_SECONDS = 24 * HOUR_MILL_SECONDS;
 
-	// 获取某年的第几周的开始日期
-	public static Date getFirstDayOfWeek(int year, int week) {
-		Calendar c = getFirstDayOfWeek(year);
-		Calendar cal = (GregorianCalendar) c.clone();
-		cal.add(Calendar.DATE, week * 7);
-
-		return getFirstDayOfWeek(cal.getTime());
+	public static int getCurrentTime() {
+		int date = Integer.parseInt(new SimpleDateFormat("HHmm")
+				.format(new Date()));
+		return date;
 	}
 
-	// 获取某年的第几周的结束日期
-	public static Date getLastDayOfWeek(int year, int week) {
-		Calendar c = getFirstDayOfWeek(year);
-		Calendar cal = (GregorianCalendar) c.clone();
-		cal.add(Calendar.DATE, week * 7);
+	public static int getCurrentYear() {
+		Calendar date = Calendar.getInstance();
+		return date.get(Calendar.YEAR);
 
-		return getLastDayOfWeek(cal.getTime());
+	}
+
+	// 获取当前时间所在周的开始日期
+	public static Date getFirstDayOfWeek(Date date) {
+		Calendar c = new GregorianCalendar();
+		c.setFirstDayOfWeek(Calendar.MONDAY);
+		c.setTime(date);
+		c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek()); // Monday
+		return c.getTime();
 	}
 
 	/**
@@ -49,13 +52,13 @@ public class DateUtil {
 		return c;
 	}
 
-	// 获取当前时间所在周的开始日期
-	public static Date getFirstDayOfWeek(Date date) {
-		Calendar c = new GregorianCalendar();
-		c.setFirstDayOfWeek(Calendar.MONDAY);
-		c.setTime(date);
-		c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek()); // Monday
-		return c.getTime();
+	// 获取某年的第几周的开始日期
+	public static Date getFirstDayOfWeek(int year, int week) {
+		Calendar c = getFirstDayOfWeek(year);
+		Calendar cal = (GregorianCalendar) c.clone();
+		cal.add(Calendar.DATE, week * 7);
+
+		return getFirstDayOfWeek(cal.getTime());
 	}
 
 	// 获取当前时间所在周的结束日期
@@ -67,20 +70,13 @@ public class DateUtil {
 		return c.getTime();
 	}
 
-	/**
-	 * 判断该年的最后一天(xxxx年12月31日)所在的周是不是当年的最后一周, 否则就是下一年的第一周
-	 */
-	public static boolean isLastDayInYearLastWeek(Date lastDate) {
-		boolean result = false;
-		Calendar c = new GregorianCalendar();
-		c.setTime(lastDate);
-		int lastDay = c.get(Calendar.DAY_OF_WEEK);
-		// 当lastDay是周四、五、六、日， 它所在周就是是该年的最后一周
-		if (lastDay == Calendar.THURSDAY || lastDay == Calendar.FRIDAY
-				|| lastDay == Calendar.SATURDAY || lastDay == Calendar.SUNDAY) {
-			result = true;
-		}
-		return result;
+	// 获取某年的第几周的结束日期
+	public static Date getLastDayOfWeek(int year, int week) {
+		Calendar c = getFirstDayOfWeek(year);
+		Calendar cal = (GregorianCalendar) c.clone();
+		cal.add(Calendar.DATE, week * 7);
+
+		return getLastDayOfWeek(cal.getTime());
 	}
 
 	// 获取一年的最后一天
@@ -124,15 +120,19 @@ public class DateUtil {
 		}
 	}
 
-	public static int getCurrentYear() {
-		Calendar date = Calendar.getInstance();
-		return date.get(Calendar.YEAR);
-
-	}
-
-	public static int getCurrentTime() {
-		int date = Integer.parseInt(new SimpleDateFormat("HHmm")
-				.format(new Date()));
-		return date;
+	/**
+	 * 判断该年的最后一天(xxxx年12月31日)所在的周是不是当年的最后一周, 否则就是下一年的第一周
+	 */
+	public static boolean isLastDayInYearLastWeek(Date lastDate) {
+		boolean result = false;
+		Calendar c = new GregorianCalendar();
+		c.setTime(lastDate);
+		int lastDay = c.get(Calendar.DAY_OF_WEEK);
+		// 当lastDay是周四、五、六、日， 它所在周就是是该年的最后一周
+		if (lastDay == Calendar.THURSDAY || lastDay == Calendar.FRIDAY
+				|| lastDay == Calendar.SATURDAY || lastDay == Calendar.SUNDAY) {
+			result = true;
+		}
+		return result;
 	}
 }

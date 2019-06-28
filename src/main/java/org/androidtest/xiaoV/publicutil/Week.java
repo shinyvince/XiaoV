@@ -13,6 +13,18 @@ public class Week {
 	// 周结束日期 格式: MM/dd
 	private String weekEnd;
 
+	public int getBeginYear() {
+		return beginYear;
+	}
+
+	public int getEndYear() {
+		return endYear;
+	}
+
+	public String getWeekBegin() {
+		return weekBegin;
+	}
+
 	/**
 	 * 获取周开始日期 (yyyy/MM/dd)
 	 * 
@@ -28,6 +40,10 @@ public class Week {
 			e.printStackTrace();
 		}
 		return date;
+	}
+
+	public String getWeekEnd() {
+		return weekEnd;
 	}
 
 	/**
@@ -51,40 +67,24 @@ public class Week {
 		return weekNum;
 	}
 
-	public void setWeekNum(String weekNum) {
-		this.weekNum = weekNum;
-	}
-
-	public int getBeginYear() {
-		return beginYear;
-	}
-
 	public void setBeginYear(int beginYear) {
 		this.beginYear = beginYear;
-	}
-
-	public int getEndYear() {
-		return endYear;
 	}
 
 	public void setEndYear(int endYear) {
 		this.endYear = endYear;
 	}
 
-	public String getWeekBegin() {
-		return weekBegin;
-	}
-
 	public void setWeekBegin(String weekBegin) {
 		this.weekBegin = weekBegin;
 	}
 
-	public String getWeekEnd() {
-		return weekEnd;
-	}
-
 	public void setWeekEnd(String weekEnd) {
 		this.weekEnd = weekEnd;
+	}
+
+	public void setWeekNum(String weekNum) {
+		this.weekNum = weekNum;
 	}
 
 	@Override

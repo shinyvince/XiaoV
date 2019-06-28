@@ -21,6 +21,15 @@ public class Config {
 	public static final boolean DEBUG = false;// 全局的代码调试开关，打开后会一键进行测试模块，会在短时间里把各个组件的主动触发功能执行一遍
 
 	/**
+	 * MenuAction类的合法参数及参数类型
+	 */
+	public static final Map<String, MsgTypeEnum> MENU_VAILD_KEYWORD_LIST = new HashMap<String, MsgTypeEnum>() {
+		{
+			put("菜单", MsgTypeEnum.TEXT);
+		}
+	};
+
+	/**
 	 * 需要配置的群白名单和该群所需的组件信息。 可选组件的工厂见org.androidtest.vince.factory
 	 */
 	public static void initGroupAndAdmin() {
@@ -37,68 +46,9 @@ public class Config {
 								"C:\\Users\\Administrator\\Desktop\\DAILY CHECK LIST @Vince蔡培培.xlsx"));
 		group.addAction(ActionFactory.createDailySelfReflectionAction(
 				whiteList, true));// 配置该群有每日反思打卡功能，需要配置反思人及对应的反思excel文件地址
+
 		Constant.groupList.add(group);
 
 	}
-
-	/**
-	 * MenuAction类的合法参数
-	 */
-	public static final Map<String, MsgTypeEnum> MENU_VAILD_KEYWORD_LIST = new HashMap<String, MsgTypeEnum>() {
-		{
-			put("菜单", MsgTypeEnum.TEXT);
-		}
-	};
-
-	/**
-	 * WeeklySportClockIn类的合法参数
-	 */
-	public static final Map<String, MsgTypeEnum> WEEKLY_SPORT_VAILD_KEYWORD_LIST = new HashMap<String, MsgTypeEnum>() {
-		{
-			put("运动打卡", MsgTypeEnum.TEXT);
-			put("打卡运动", MsgTypeEnum.TEXT);
-		}
-	};
-
-	/**
-	 * DailyStepClockIn类的合法参数
-	 */
-	public static final Map<String, MsgTypeEnum> DAILY_STEP_VAILD_KEYWORD_LIST = new HashMap<String, MsgTypeEnum>() {
-		{
-			put("步数打卡", MsgTypeEnum.TEXT);
-			put("打卡步数", MsgTypeEnum.TEXT);
-		}
-	};
-
-	/**
-	 * WeeklyReportClockInCustomized类的合法参数
-	 */
-	public static final Map<String, MsgTypeEnum> WEEKLY_REPORT_VAILD_KEYWORD_LIST = new HashMap<String, MsgTypeEnum>() {
-		{
-			put("周报", MsgTypeEnum.TEXT);
-		}
-	};
-
-	/**
-	 * LifeRoutineClockInCustomized类的合法参数
-	 */
-	public static final Map<String, MsgTypeEnum> LIFE_ROUTINE_VAILD_KEYWORD_LIST = new HashMap<String, MsgTypeEnum>() {
-		{
-			put("收到红包，请在手机上查看", MsgTypeEnum.SYS);
-			put("Red packet received. View on phone.", MsgTypeEnum.SYS);
-		}
-	};
-
-	/**
-	 * DailySelfReflectionCustomized类的合法参数
-	 */
-	public static final Map<String, MsgTypeEnum> DAILY_SELF_REFLECTION_VAILD_KEYWORD_LIST = new HashMap<String, MsgTypeEnum>() {
-		{
-			put(Constant.DAILY_SELF_REFLECTION_DEFAULT_FILENAME_TEMPLATES
-					+ ":xlsx", MsgTypeEnum.MEDIA);
-			put(Constant.DAILY_SELF_REFLECTION_DEFAULT_FILENAME_TEMPLATES
-					+ ":xls", MsgTypeEnum.MEDIA);
-		}
-	};
 
 }

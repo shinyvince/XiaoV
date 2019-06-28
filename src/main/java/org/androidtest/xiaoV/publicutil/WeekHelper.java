@@ -11,6 +11,54 @@ public class WeekHelper {
 	private static SimpleDateFormat sdf = new SimpleDateFormat("MMdd");
 	private static SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMdd");
 
+	public static String getCurrentDateStartWeek() {
+		return new SimpleDateFormat("yyyyMMdd").format(DateUtil
+				.getFirstDayOfWeek(new Date()));
+	}
+
+	public static String getCurrentWeek() {
+		String current = getCurrentDateStartWeek();
+		List<Week> weeks = WeekHelper.getWeeksByCurrentYear();
+		String result = null;
+		for (Week week : weeks) {
+			if (week.toString().startsWith(current)) {
+				result = week.toString();
+				break;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 获取当前时间所在的年份
+	 * 
+	 * @param nowCal
+	 * @return
+	 */
+	public static int getSelectYear(Calendar nowCal) {
+		int currentYear = nowCal.get(Calendar.YEAR);
+		int currentYear1 = currentYear + 1;
+		int currentYear2 = currentYear - 1;
+		Date[] resultDate = getYearMinDayAndMasDay(currentYear);
+		if (DateUtil.isEffectiveDate(nowCal.getTime(), resultDate[0],
+				resultDate[1])) {
+			return currentYear;
+		} else {
+			resultDate = getYearMinDayAndMasDay(currentYear1);
+			if (DateUtil.isEffectiveDate(nowCal.getTime(), resultDate[0],
+					resultDate[1])) {
+				return currentYear1;
+			} else {
+				resultDate = getYearMinDayAndMasDay(currentYear2);
+				if (DateUtil.isEffectiveDate(nowCal.getTime(), resultDate[0],
+						resultDate[1])) {
+					return currentYear2;
+				}
+			}
+		}
+		return 0;
+	}
+
 	public static List<Week> getWeeksByCurrentYear() {
 		return getWeeksByYear(DateUtil.getCurrentYear());
 	}
@@ -66,33 +114,18 @@ public class WeekHelper {
 	}
 
 	/**
-	 * 获取当前时间所在的年份
+	 * 根据当前日期算出所在周的开始时间和结束时间
 	 * 
-	 * @param nowCal
+	 * @param currentDate
 	 * @return
 	 */
-	public static int getSelectYear(Calendar nowCal) {
-		int currentYear = nowCal.get(Calendar.YEAR);
-		int currentYear1 = currentYear + 1;
-		int currentYear2 = currentYear - 1;
-		Date[] resultDate = getYearMinDayAndMasDay(currentYear);
-		if (DateUtil.isEffectiveDate(nowCal.getTime(), resultDate[0],
-				resultDate[1])) {
-			return currentYear;
-		} else {
-			resultDate = getYearMinDayAndMasDay(currentYear1);
-			if (DateUtil.isEffectiveDate(nowCal.getTime(), resultDate[0],
-					resultDate[1])) {
-				return currentYear1;
-			} else {
-				resultDate = getYearMinDayAndMasDay(currentYear2);
-				if (DateUtil.isEffectiveDate(nowCal.getTime(), resultDate[0],
-						resultDate[1])) {
-					return currentYear2;
-				}
-			}
-		}
-		return 0;
+	public static String[] getWeekStartAndEndDay(Date currentDate) {
+		String[] weekDay = new String[2];
+		Date firstDayOfWeek = DateUtil.getFirstDayOfWeek(currentDate);
+		Date lastDayOfWeek = DateUtil.getLastDayOfWeek(currentDate);
+		weekDay[0] = sdf2.format(firstDayOfWeek.getTime());
+		weekDay[1] = sdf2.format(lastDayOfWeek.getTime());
+		return weekDay;
 	}
 
 	/**
@@ -111,38 +144,5 @@ public class WeekHelper {
 		resultDate[0] = minDate;
 		resultDate[1] = maxDate;
 		return resultDate;
-	}
-
-	/**
-	 * 根据当前日期算出所在周的开始时间和结束时间
-	 * 
-	 * @param currentDate
-	 * @return
-	 */
-	public static String[] getWeekStartAndEndDay(Date currentDate) {
-		String[] weekDay = new String[2];
-		Date firstDayOfWeek = DateUtil.getFirstDayOfWeek(currentDate);
-		Date lastDayOfWeek = DateUtil.getLastDayOfWeek(currentDate);
-		weekDay[0] = sdf2.format(firstDayOfWeek.getTime());
-		weekDay[1] = sdf2.format(lastDayOfWeek.getTime());
-		return weekDay;
-	}
-
-	public static String getCurrentDateStartWeek() {
-		return new SimpleDateFormat("yyyyMMdd").format(DateUtil
-				.getFirstDayOfWeek(new Date()));
-	}
-
-	public static String getCurrentWeek() {
-		String current = getCurrentDateStartWeek();
-		List<Week> weeks = WeekHelper.getWeeksByCurrentYear();
-		String result = null;
-		for (Week week : weeks) {
-			if (week.toString().startsWith(current)) {
-				result = week.toString();
-				break;
-			}
-		}
-		return result;
 	}
 }
