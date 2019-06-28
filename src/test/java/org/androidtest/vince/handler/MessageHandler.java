@@ -371,7 +371,7 @@ public class MessageHandler {
 				+ msg);
 		List<String> currentGroupVaildKeyword = new ArrayList<String>();
 		currentGroupVaildKeyword.addAll(group.getAllVaildSysMsgKeyword());
-		String content = msg.getText();
+		String content = msg.getContent();
 		if (StringUtil.ifNotNullOrEmpty(currentGroupVaildKeyword)) {
 			for (int i = 0; i < currentGroupVaildKeyword.size(); i++) {
 				String expect = currentGroupVaildKeyword.get(i);
