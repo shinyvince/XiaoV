@@ -1,17 +1,17 @@
 package cn.zhouyafeng.itchat4j;
 
-import static org.androidtest.vince.data.Constant.groupList;
+import static org.androidtest.xiaoV.data.Constant.groupList;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.androidtest.vince.Config;
-import org.androidtest.vince.customized.Customized;
-import org.androidtest.vince.data.Constant;
-import org.androidtest.vince.data.Group;
-import org.androidtest.vince.publicutil.LogUtil;
-import org.androidtest.vince.publicutil.StringUtil;
-import org.androidtest.vince.publicutil.ThreadUtil;
+import org.androidtest.xiaoV.Config;
+import org.androidtest.xiaoV.customized.Customized;
+import org.androidtest.xiaoV.data.Constant;
+import org.androidtest.xiaoV.data.Group;
+import org.androidtest.xiaoV.publicutil.LogUtil;
+import org.androidtest.xiaoV.publicutil.StringUtil;
+import org.androidtest.xiaoV.publicutil.ThreadUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -2,13 +2,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>cn.zhouyafeng</groupId>
-    <artifactId>Vince_WecChatRobot_Demo</artifactId>
+    <groupId>org.androidtest</groupId>
+    <artifactId>XiaoV</artifactId>
     <version>1.1.0</version>
     <packaging>jar</packaging>
 
 
-    <name>Vince_WecChatRobot_Demo</name>
+    <name>org.androidtest.xiaoV</name>
     <url>http://maven.apache.org</url>
 
     <properties>
