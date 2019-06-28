@@ -1,7 +1,5 @@
 package cn.zhouyafeng.itchat4j.core;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 
@@ -141,12 +139,6 @@ public class MsgCenter {
 		}
 		return result;
 	}
-
-	static String date = new SimpleDateFormat("dd").format(new Date());
-	static boolean dayilyWakeUpOverTime = false;
-	static boolean dayilySleepRemind = false;
-	static boolean dayilyReport = false;
-	static boolean dayilySleepRedPacketCount = false;
 
 	/**
 	 * 消息处理
