@@ -20,6 +20,10 @@
 + 使用前记得先把要做机器人的微信号拉进指定群；
 + 老微信号才有微信接口权限，新微信号没微信接口权限故没法做机器人；
 
+# 项目入口
+配置类：/src/main/java/org/androidtest/xiaoV/Config.java
+主入口：/src/main/java/org/androidtest/xiaoV/Main.java
+
 # 使用截图
 ![](https://github.com/shinyvince/XiaoV/blob/master/src/main/resources/example1.jpg)
 
