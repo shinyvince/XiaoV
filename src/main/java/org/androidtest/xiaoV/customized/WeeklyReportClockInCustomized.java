@@ -212,7 +212,7 @@ public class WeeklyReportClockInCustomized extends Customized {
 		if (currentTime == autoReportTime) {
 			String currentGroupNickName = currentGroup.getGroupNickName();
 			MessageTools.sendGroupMsgByNickName(currentTimeString
-					+ "，开始进行本周播报。", currentGroupNickName);
+					+ "，开始进行本周播报。不达标的人需要发红包。", currentGroupNickName);
 			String result = handleClockInCustomized(currentGroup);
 			MessageTools.sendGroupMsgByNickName(result, currentGroupNickName);
 			LOG.info("reportProcessRegularly: "
