@@ -820,7 +820,7 @@ public class LoginServiceImpl implements ILoginService {
 		try {
 			HttpEntity entity = myHttpClient.doPost(url, paramStr);
 			String text = EntityUtils.toString(entity, Consts.UTF_8);
-			LogUtil.SYS.debug("webWxSync: " + "text:" + text);
+			LogUtil.SYS.info("webWxSync: " + "text:" + text);
 			JSONObject obj = JSON.parseObject(text);
 			if (obj.getJSONObject("BaseResponse").getInteger("Ret") != 0) {
 				result = null;

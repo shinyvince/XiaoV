@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.androidtest.xiaoV.action.ClockIn.ClockIn;
-import org.androidtest.xiaoV.action.ClockIn.WeeklyStepClockIn;
 import org.androidtest.xiaoV.action.ClockIn.WeeklySportClockIn;
+import org.androidtest.xiaoV.action.ClockIn.WeeklyStepClockIn;
 import org.androidtest.xiaoV.data.Constant;
 import org.androidtest.xiaoV.data.Group;
 import org.androidtest.xiaoV.publicutil.LogUtil;

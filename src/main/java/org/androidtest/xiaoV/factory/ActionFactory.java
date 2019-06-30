@@ -45,6 +45,11 @@ public class ActionFactory {
 		return action;
 	}
 
+	public static Action createGroupRuleAction(String groupNickName, File file) {
+		GroupRuleAction action = new GroupRuleAction(groupNickName, file);
+		return action;
+	}
+
 	public static LifeRoutineAction createLifeRoutineClockInAction(
 			boolean life_routine_monrning_call, int morning_call_time,
 			boolean life_routine_sleep_remind, int sleep_remind_time) {
@@ -61,6 +66,11 @@ public class ActionFactory {
 		return action;
 	}
 
+	public static MenuAction createMenuAction() {
+		MenuAction action = new MenuAction();
+		return action;
+	}
+
 	public static WeeklyReportAction createWeeklyReportClockInAction(
 			int dailyStep_weeklyLimitTimes, int weeklySport_weeklyLimitTimes) {
 		WeeklyReportAction action = new WeeklyReportAction(
@@ -69,24 +79,14 @@ public class ActionFactory {
 	}
 
 	public static WeeklySportClockIn createWeeklySportClockIn(
-			int week_sport_limit_times, boolean isDiff) {
-		WeeklySportClockIn action = new WeeklySportClockIn(
-				week_sport_limit_times, isDiff);
-		return action;
-	}
-
-	public static WeeklySportClockIn createWeeklySportClockIn(
 			int week_sport_limit_times) {
 		return createWeeklySportClockIn(week_sport_limit_times, false);
 	}
 
-	public static MenuAction createMenuAction() {
-		MenuAction action = new MenuAction();
-		return action;
-	}
-
-	public static Action createGroupRuleAction(String groupNickName, File file) {
-		GroupRuleAction action = new GroupRuleAction(groupNickName, file);
+	public static WeeklySportClockIn createWeeklySportClockIn(
+			int week_sport_limit_times, boolean isDiff) {
+		WeeklySportClockIn action = new WeeklySportClockIn(
+				week_sport_limit_times, isDiff);
 		return action;
 	}
 

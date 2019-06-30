@@ -11,14 +11,6 @@ public abstract class ClockIn extends Action {
 	protected int weeklyLimitTimes = -1;
 	protected boolean isDiff = false;
 
-	protected boolean isDiff() {
-		return isDiff;
-	}
-
-	protected void setDiff(boolean isDiff) {
-		this.isDiff = isDiff;
-	}
-
 	public ClockIn(String actionName, Map<String, MsgTypeEnum> vailKeywordMap,
 			int weeklyLimitTimes) {
 		this(actionName, vailKeywordMap, weeklyLimitTimes, false);
@@ -38,6 +30,14 @@ public abstract class ClockIn extends Action {
 
 	protected int getWeeklyLimitTimes() {
 		return weeklyLimitTimes;
+	}
+
+	protected boolean isDiff() {
+		return isDiff;
+	}
+
+	protected void setDiff(boolean isDiff) {
+		this.isDiff = isDiff;
 	}
 
 	protected void setWeeklyLimitTimes(int weeklyLimitTimes) {

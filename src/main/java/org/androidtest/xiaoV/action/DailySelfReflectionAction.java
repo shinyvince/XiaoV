@@ -263,6 +263,9 @@ public class DailySelfReflectionAction extends Action {
 			if (filePath.exists() && filePath.isFile()) {// A路径存在
 				LogUtil.MSG.debug("setWhiteList: " + nickName + ", 预设的路径存在文件"
 						+ filePath.getAbsolutePath());
+				if (newfile.exists() && newfile.isFile()) {// 如果A路径存在情况下，B路径也存在，就先删除B
+					newfile.delete();
+				}
 				if (filePath.renameTo(newfile)) {
 					whiteList.remove(nickName);
 					whiteList.put(nickName, newfile);

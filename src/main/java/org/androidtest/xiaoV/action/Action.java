@@ -25,14 +25,6 @@ public abstract class Action {
 		setVailKeywordMap(vailKeywordMap);
 	}
 
-	protected String getActionName() {
-		return actionName;
-	}
-
-	private void setActionName(String actionName) {
-		this.actionName = actionName;
-	}
-
 	/**
 	 * 对行为执行反应
 	 * 
@@ -41,6 +33,10 @@ public abstract class Action {
 	 * @return
 	 */
 	public abstract String action(Group group, BaseMsg msg);
+
+	protected String getActionName() {
+		return actionName;
+	}
 
 	/**
 	 * 返回该类的合法关键字列表
@@ -82,6 +78,10 @@ public abstract class Action {
 	 * @return
 	 */
 	public abstract String report(Group group);
+
+	private void setActionName(String actionName) {
+		this.actionName = actionName;
+	}
 
 	private void setVailKeywordMap(Map<String, MsgTypeEnum> vailKeywordMap) {
 		this.vailKeywordMap = vailKeywordMap;

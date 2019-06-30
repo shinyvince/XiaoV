@@ -35,41 +35,18 @@ public class GroupRuleAction extends Action {
 
 	private File ruleFile;
 
-	public File getRuleFile() {
-		return ruleFile;
+	public GroupRuleAction(String groupNickName, File file) {
+		super(actionName, RULE_VAILD_KEYWORD_LIST);
+		setRuleFile(groupNickName, file);
 	}
 
-	public void setRuleFile(String groupNickName, File ruleFile) {
-		File newfile = new File(Constant.DATA_SAVE_PATH.getAbsolutePath()
-				+ File.separator + createGroupRuleFilename(groupNickName)
-				+ getFileExtension(ruleFile));
-		LogUtil.MSG.info("setRuleFile: " + newfile.getAbsolutePath());
-		if (ruleFile.exists() && ruleFile.isFile()) {// A路径存在
-			LogUtil.MSG.debug("setRuleFile: " + groupNickName + ", 预设的路径存在文件"
-					+ ruleFile.getAbsolutePath());
-			if (ruleFile.renameTo(newfile)) {
-				LogUtil.MSG.debug("setRuleFile: " + groupNickName
-						+ ", 变更文件成功，新路径: " + newfile.getAbsolutePath());
-			} else {
-				throw new RuntimeException("setRuleFile:" + ruleFile.getName()
-						+ "改名为" + newfile.getName() + "失败。对应群名为:"
-						+ groupNickName + "。请检查原因。");
-			}
-		} else if (newfile.exists() && newfile.isFile()) {// A路径不在，新路径存在
-			LogUtil.MSG.debug("setRuleFile: " + groupNickName
-					+ ", 预设的文件路径不存在，但在另一路径找到，更新文件成功: "
-					+ newfile.getAbsolutePath());
-		} else {
-			throw new RuntimeException("setRuleFile:"
-					+ ruleFile.getAbsolutePath() + "路径不存在或者非文件，对应群名为:"
-					+ groupNickName + "。请检查文件路径。");
-		}
-		if (!newfile.exists()) {
-			throw new RuntimeException("setRuleFile:"
-					+ newfile.getAbsolutePath() + "路径不存在或者非文件，对应群名为:"
-					+ groupNickName + "。请检查文件路径。");
-		}
-		this.ruleFile = newfile;
+	@Override
+	public String action(Group group, BaseMsg msg) {
+		LogUtil.MSG.debug("action: " + this.getClass().getSimpleName());
+		String currentGroupNickName = group.getGroupNickName();
+		MessageTools.sendPicMsgByGroupNickName(currentGroupNickName,
+				getRuleFile().getAbsolutePath());
+		return null;
 	}
 
 	private String createGroupRuleFilename(String groupNickName) {
@@ -101,18 +78,8 @@ public class GroupRuleAction extends Action {
 		}
 	}
 
-	public GroupRuleAction(String groupNickName, File file) {
-		super(actionName, RULE_VAILD_KEYWORD_LIST);
-		setRuleFile(groupNickName, file);
-	}
-
-	@Override
-	public String action(Group group, BaseMsg msg) {
-		LogUtil.MSG.debug("action: " + this.getClass().getSimpleName());
-		String currentGroupNickName = group.getGroupNickName();
-		MessageTools.sendPicMsgByGroupNickName(currentGroupNickName,
-				getRuleFile().getAbsolutePath());
-		return null;
+	public File getRuleFile() {
+		return ruleFile;
 	}
 
 	@Override
@@ -125,6 +92,42 @@ public class GroupRuleAction extends Action {
 	public String report(Group group) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public void setRuleFile(String groupNickName, File ruleFile) {
+		File newfile = new File(Constant.DATA_SAVE_PATH.getAbsolutePath()
+				+ File.separator + createGroupRuleFilename(groupNickName)
+				+ getFileExtension(ruleFile));
+		LogUtil.MSG.info("setRuleFile: " + newfile.getAbsolutePath());
+		if (ruleFile.exists() && ruleFile.isFile()) {// A路径存在
+			LogUtil.MSG.debug("setRuleFile: " + groupNickName + ", 预设的路径存在文件"
+					+ ruleFile.getAbsolutePath());
+			if (newfile.exists() && newfile.isFile()) {// A和B路径同时存在，就删B
+				newfile.delete();
+			}
+			if (ruleFile.renameTo(newfile)) {
+				LogUtil.MSG.debug("setRuleFile: " + groupNickName
+						+ ", 变更文件成功，新路径: " + newfile.getAbsolutePath());
+			} else {
+				throw new RuntimeException("setRuleFile:" + ruleFile.getName()
+						+ "改名为" + newfile.getName() + "失败。对应群名为:"
+						+ groupNickName + "。请检查原因。");
+			}
+		} else if (newfile.exists() && newfile.isFile()) {// A路径不在，新路径存在
+			LogUtil.MSG.debug("setRuleFile: " + groupNickName
+					+ ", 预设的文件路径不存在，但在另一路径找到，更新文件成功: "
+					+ newfile.getAbsolutePath());
+		} else {
+			throw new RuntimeException("setRuleFile:"
+					+ ruleFile.getAbsolutePath() + "路径不存在或者非文件，对应群名为:"
+					+ groupNickName + "。请检查文件路径。");
+		}
+		if (!newfile.exists()) {
+			throw new RuntimeException("setRuleFile:"
+					+ newfile.getAbsolutePath() + "路径不存在或者非文件，对应群名为:"
+					+ groupNickName + "。请检查文件路径。");
+		}
+		this.ruleFile = newfile;
 	}
 
 }

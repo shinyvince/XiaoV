@@ -41,17 +41,17 @@ public class WeeklyStepClockIn extends ClockIn {
 
 	private static final String actionName = "每周步数打卡";
 
-	public WeeklyStepClockIn(int weeklyLimitTimes, boolean isDiff) {
-		super(actionName, DAILY_STEP_VAILD_KEYWORD_LIST, weeklyLimitTimes,
-				isDiff);
+	public WeeklyStepClockIn() {
+		this(7);
 	}
 
 	public WeeklyStepClockIn(int weeklyLimitTimes) {
 		this(weeklyLimitTimes, false);
 	}
 
-	public WeeklyStepClockIn() {
-		this(7);
+	public WeeklyStepClockIn(int weeklyLimitTimes, boolean isDiff) {
+		super(actionName, DAILY_STEP_VAILD_KEYWORD_LIST, weeklyLimitTimes,
+				isDiff);
 	}
 
 	@Override

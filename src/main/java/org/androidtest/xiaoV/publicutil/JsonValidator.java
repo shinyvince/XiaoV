@@ -14,6 +14,7 @@ public class JsonValidator {
 		String json = "[{ \"ip\": \"192.168.1.106:5555\", \"comPort\": 9, \"comID\": 50, \"memorySize\": 1024, \"androidVersion\": \"7.0\" }, { \"ip\": \"172.19.91.28:5555\", \"comPort\": 10, \"comID\": 52, \"memorySize\": 1024, \"androidVersion\": \"7.0\" } ]";
 		System.out.println(json + ":" + new JsonValidator().validate(json));
 	}
+
 	private CharacterIterator it;
 	private char c;
 

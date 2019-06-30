@@ -22,6 +22,7 @@ import com.alibaba.fastjson.JSONObject;
 public class Core {
 
 	private static Core instance;
+
 	public static Core getInstance() {
 		if (instance == null) {
 			synchronized (Core.class) {
@@ -30,6 +31,7 @@ public class Core {
 		}
 		return instance;
 	}
+
 	boolean alive = false;
 	Map<String, Object> loginInfo = new HashMap<String, Object>();
 	// CloseableHttpClient httpClient = HttpClients.createDefault();
