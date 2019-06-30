@@ -46,6 +46,7 @@ public class Constant {
 	public static final String BlANK_LINE = " ";
 
 	public static final String DAILY_SELF_REFLECTION_DEFAULT_FILENAME_TEMPLATES = "DAILY CHECK LIST";
+	public static final String GROUP_RULE_DEFAULT_FILENAME_TEMPLATES = "GROUP RULE-";
 
 	/**
 	 * 预设默认值

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.androidtest.xiaoV.action.ClockIn.ClockIn;
-import org.androidtest.xiaoV.action.ClockIn.DailyStepClockIn;
+import org.androidtest.xiaoV.action.ClockIn.WeeklyStepClockIn;
 import org.androidtest.xiaoV.action.ClockIn.WeeklySportClockIn;
 import org.androidtest.xiaoV.data.Constant;
 import org.androidtest.xiaoV.data.Group;
@@ -40,6 +40,9 @@ public class WeeklyReportAction extends Action {
 			put("周报", MsgTypeEnum.TEXT);
 		}
 	};
+
+	private static final String actionName = "每周统计播报";
+
 	private int dailyStep_weeklyLimitTimes = -1;
 
 	private int weeklySport_weeklyLimitTimes = -1;
@@ -48,7 +51,7 @@ public class WeeklyReportAction extends Action {
 
 	public WeeklyReportAction(int dailyStep_weeklyLimitTimes,
 			int weeklySport_weeklyLimitTimes) {
-		super(WEEKLY_REPORT_VAILD_KEYWORD_LIST);
+		super(actionName, WEEKLY_REPORT_VAILD_KEYWORD_LIST);
 		setDailyStep_weeklyLimitTimes(dailyStep_weeklyLimitTimes);
 		setWeeklySport_weeklyLimitTimes(weeklySport_weeklyLimitTimes);
 	}
@@ -78,7 +81,7 @@ public class WeeklyReportAction extends Action {
 			if (group.containsAction(WeeklySportClockIn.class)) {
 				supportSport = true;
 			}
-			if (group.containsAction(DailyStepClockIn.class)) {
+			if (group.containsAction(WeeklyStepClockIn.class)) {
 				supportStep = true;
 			}
 			if (supportSport == true || supportStep == true) {
@@ -184,7 +187,7 @@ public class WeeklyReportAction extends Action {
 		if (currentTime == autoReportTime) {
 			String currentGroupNickName = currentGroup.getGroupNickName();
 			MessageTools.sendGroupMsgByNickName(currentTimeString
-					+ "，开始进行本周播报。不达标的人需要发红包。", currentGroupNickName);
+					+ "，开始进行本周播报。", currentGroupNickName);
 			String result = action(currentGroup, null);
 			MessageTools.sendGroupMsgByNickName(result, currentGroupNickName);
 			LogUtil.MSG.info("notify: " + currentGroup.getGroupNickName()

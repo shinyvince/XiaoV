@@ -38,22 +38,25 @@ public class DailySelfReflectionAction extends Action {
 					+ ":xls", MsgTypeEnum.MEDIA);
 		}
 	};
+
+	private static final String actionName = "每日反思打卡";
+
 	private Map<String, File> whiteList = new HashMap<String, File>();
 	private int noonRemindTime = 1300;
-	private int nightRemindTime = 0112;
+	private int nightRemindTime = 2230;
 
 	private boolean noonRemind = false;
 
 	public DailySelfReflectionAction(Map<String, File> whiteList,
 			boolean noonRemind) {
-		super(DAILY_SELF_REFLECTION_VAILD_KEYWORD_LIST);
+		super(actionName, DAILY_SELF_REFLECTION_VAILD_KEYWORD_LIST);
 		setWhiteList(whiteList);
 		setNoonRemind(noonRemind);
 	}
 
 	public DailySelfReflectionAction(Map<String, File> whiteList,
 			int nightRemindTime) {
-		super(DAILY_SELF_REFLECTION_VAILD_KEYWORD_LIST);
+		super(actionName, DAILY_SELF_REFLECTION_VAILD_KEYWORD_LIST);
 		setWhiteList(whiteList);
 		setNoonRemind(false);
 		setNightRemindTime(nightRemindTime);
@@ -61,7 +64,7 @@ public class DailySelfReflectionAction extends Action {
 
 	public DailySelfReflectionAction(Map<String, File> whiteList,
 			int noonRemindTime, int nightRemindTime) {
-		super(DAILY_SELF_REFLECTION_VAILD_KEYWORD_LIST);
+		super(actionName, DAILY_SELF_REFLECTION_VAILD_KEYWORD_LIST);
 		setWhiteList(whiteList);
 		setNoonRemind(true);
 		setNightRemindTime(nightRemindTime);
@@ -107,7 +110,7 @@ public class DailySelfReflectionAction extends Action {
 		}
 		if (result == null) {
 			result = "@" + currentNickName + " 你不在每日反思名单中，无法完成该功能。请联系管理员" + "@"
-					+ group.getAdmin() + "报名。";
+					+ group.getAdmin() + " 报名。";
 		}
 		return result;
 	}
@@ -217,7 +220,7 @@ public class DailySelfReflectionAction extends Action {
 
 	private void setNightRemindTime(int nightRemindTime) {
 		LogUtil.MSG.debug("setNightRemindTime: " + nightRemindTime);
-		if (nightRemindTime >= 0000 && nightRemindTime <= 2400) {
+		if (nightRemindTime >= 0 && nightRemindTime <= 2400) {
 			this.nightRemindTime = nightRemindTime;
 		} else {
 			throw new RuntimeException("setNightRemindTime: out of range: "
@@ -234,7 +237,7 @@ public class DailySelfReflectionAction extends Action {
 
 	private void setNoonRemindTime(int noonRemindTime) {
 		LogUtil.MSG.debug("setNoonRemindTime: " + noonRemindTime);
-		if (noonRemindTime >= 0000 && noonRemindTime <= 2400) {
+		if (noonRemindTime >= 0 && noonRemindTime <= 2400) {
 			this.noonRemindTime = noonRemindTime;
 		} else {
 			throw new RuntimeException("setNoonRemindTime: out of range: "

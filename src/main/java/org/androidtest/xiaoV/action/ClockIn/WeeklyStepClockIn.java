@@ -1,6 +1,7 @@
 package org.androidtest.xiaoV.action.ClockIn;
 
 import static org.androidtest.xiaoV.data.Constant.CURRENT_WEEK_SAVE_PATH;
+import static org.androidtest.xiaoV.data.Constant.SIMPLE_DAY_FORMAT_FILE;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +26,7 @@ import cn.zhouyafeng.itchat4j.utils.enums.MsgTypeEnum;
  * @author caipeipei
  *
  */
-public class DailyStepClockIn extends ClockIn {
+public class WeeklyStepClockIn extends ClockIn {
 
 	/**
 	 * DailyStepClockIn类的合法参数及参数类型
@@ -38,8 +39,19 @@ public class DailyStepClockIn extends ClockIn {
 		}
 	};
 
-	public DailyStepClockIn(int weeklyLimitTimes) {
-		super(DAILY_STEP_VAILD_KEYWORD_LIST, weeklyLimitTimes);
+	private static final String actionName = "每周步数打卡";
+
+	public WeeklyStepClockIn(int weeklyLimitTimes, boolean isDiff) {
+		super(actionName, DAILY_STEP_VAILD_KEYWORD_LIST, weeklyLimitTimes,
+				isDiff);
+	}
+
+	public WeeklyStepClockIn(int weeklyLimitTimes) {
+		this(weeklyLimitTimes, false);
+	}
+
+	public WeeklyStepClockIn() {
+		this(7);
 	}
 
 	@Override
@@ -60,14 +72,21 @@ public class DailyStepClockIn extends ClockIn {
 		}
 
 		String stepfilename = Constant.SIMPLE_DAY_FORMAT_FILE
-				.format(new Date()) + "-" + senderNickName + ".step";
+				.format(new Date()) + "-" + fileUserName + ".step";
 		File stepfile = new File(
 				Constant.CURRENT_WEEK_SAVE_PATH.getAbsolutePath()
 						+ File.separator + stepfilename);
+		String sportfilename = SIMPLE_DAY_FORMAT_FILE.format(new Date()) + "-"
+				+ fileUserName + ".sport";
+		File sportfile = new File(CURRENT_WEEK_SAVE_PATH.getAbsolutePath()
+				+ File.separator + sportfilename);
 		try {
 			boolean isExist = false;
+			boolean isDiffExist = false;
 			if (stepfile.exists()) {
 				isExist = true;
+			} else if (isDiff() && sportfile.exists()) {
+				isDiffExist = true;
 			} else {
 				stepfile.createNewFile();
 			}
@@ -87,6 +106,8 @@ public class DailyStepClockIn extends ClockIn {
 					result = "@" + senderNickName + " 你今天已经步数打卡过，无需重复打卡。"
 							+ WeekHelper.getCurrentWeek() + "步数打卡已完成了" + count
 							+ "次，再接再励！";
+				} else if (isDiffExist) {
+					result = "@" + senderNickName + " 你今天已经运动打卡过，不能步数打卡。";
 				} else {
 					result = "@" + senderNickName + " 今天步数打卡成功！"
 							+ WeekHelper.getCurrentWeek() + "步数打卡已完成了" + count
@@ -133,28 +154,50 @@ public class DailyStepClockIn extends ClockIn {
 					error404Name = error404Name + "@" + list.get(i) + " ";
 					continue;
 				}
+				int count = 0;
 				for (int j = 0; j < array.length; j++) {
+
 					if ((array[j].isFile()
 							&& array[j].getName().endsWith(".step") && array[j]
 							.getName().contains(list.get(i)))
 							|| (array[j].isFile()
 									&& array[j].getName().endsWith(".step") && array[j]
 									.getName().contains(name))) {
-						if (array[j].getName().contains(todaystepkeyword)) {
-							isCurrentUserExistTodayStep = true;
-							break;
+						if (getWeeklyLimitTimes() >= 7) {
+							if (array[j].getName().contains(todaystepkeyword)) {
+								isCurrentUserExistTodayStep = true;
+								break;
+							}
+						} else {
+							count++;
 						}
 					}
+
 				}
-				if (!isCurrentUserExistTodayStep) {
-					if (errorStep == null) {
-						errorStep = "@" + list.get(i) + " ";
-					} else {
-						errorStep = errorStep + "@" + list.get(i) + " ";
+				if (getWeeklyLimitTimes() >= 7) {
+					if (!isCurrentUserExistTodayStep) {
+						if (errorStep == null) {
+							errorStep = "@" + list.get(i) + " ";
+						} else {
+							errorStep = errorStep + "@" + list.get(i) + " ";
+						}
 					}
+				} else {
+					if (count < getWeeklyLimitTimes()) {
+						if (errorStep == null) {
+							errorStep = "@" + list.get(i) + " ";
+						} else {
+							errorStep = errorStep + "@" + list.get(i) + " ";
+						}
+					}
+
 				}
 			}
-			result = "------今日步数未完成：-------\n" + errorStep;
+			if (getWeeklyLimitTimes() >= 7) {
+				result = "------今日步数未完成：-------\n" + errorStep;
+			} else {
+				result = "------本周步数未完成：-------\n" + errorStep;
+			}
 			if (!StringUtil.ifNullOrEmpty(error404Name)) {
 				result = result + "\n如下（微信名含非法字符无法统计: " + error404Name + "）";
 			}

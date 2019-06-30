@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.androidtest.xiaoV.publicutil.StringUtil;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.message.BasicNameValuePair;
@@ -124,7 +125,14 @@ public class WechatTools {
 				for (int i = 0; i < mem.size(); i++) {
 					if (mem.getJSONObject(i).getString("UserName").trim()
 							.equals(userName)) {
-						return mem.getJSONObject(i).getString("DisplayName");
+						String result = mem.getJSONObject(i).getString(
+								"DisplayName");
+						if (StringUtil.ifNullOrEmpty(result)) {
+							result = null;
+							break;
+						} else {
+							return result;
+						}
 					}
 				}
 			}

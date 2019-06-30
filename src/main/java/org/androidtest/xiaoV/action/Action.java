@@ -18,9 +18,19 @@ import cn.zhouyafeng.itchat4j.utils.enums.MsgTypeEnum;
  */
 public abstract class Action {
 	private Map<String, MsgTypeEnum> vailKeywordMap;
+	private String actionName;
 
-	protected Action(Map<String, MsgTypeEnum> vailKeywordMap) {
+	protected Action(String actionName, Map<String, MsgTypeEnum> vailKeywordMap) {
+		setActionName(actionName);
 		setVailKeywordMap(vailKeywordMap);
+	}
+
+	protected String getActionName() {
+		return actionName;
+	}
+
+	private void setActionName(String actionName) {
+		this.actionName = actionName;
 	}
 
 	/**

@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.androidtest.xiaoV.action.Action;
+import org.androidtest.xiaoV.chat.TulingRobot;
 import org.androidtest.xiaoV.data.Constant;
 import org.androidtest.xiaoV.data.Group;
 import org.androidtest.xiaoV.publicutil.LogUtil;
@@ -62,7 +63,15 @@ public class MessageHandler {
 				LogUtil.MSG.debug("groupMsgHandle: result: " + result
 						+ ",content:" + content + ",robotCall: " + robotCall
 						+ ",robotDisplayName: " + robotDisplayName);
-				result = "我听不懂，需要\"菜单\"请回复菜单";
+				String nickName = WechatTools
+						.getMemberDisplayOrNickNameByGroupNickName(
+								group.getGroupNickName(),
+								msg.getStatusNotifyUserName());
+				result = TulingRobot.chat(nickName, content);
+				if (StringUtil.ifNullOrEmpty(result)) {
+					result = "我听不懂，需要\"菜单\"请回复菜单";
+				}
+
 			}
 		}
 		return result;
@@ -466,8 +475,8 @@ public class MessageHandler {
 				.getAllVaildKeyword(MsgTypeEnum.TEXT));
 		String content = msg.getText();
 		String robotDisplayName = WechatTools
-				.getMemberDisplayNameByGroupNickName(group.getGroupNickName(),
-						msg.getToUserName());
+				.getMemberDisplayOrNickNameByGroupNickName(
+						group.getGroupNickName(), msg.getToUserName());
 		if (StringUtil.ifNotNullOrEmpty(currentGroupVaildKeyword)) {
 			for (int i = 0; i < currentGroupVaildKeyword.size(); i++) {
 				if (content.startsWith(currentGroupVaildKeyword.get(i))

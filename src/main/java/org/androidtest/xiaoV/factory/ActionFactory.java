@@ -4,11 +4,14 @@ import java.io.File;
 import java.util.Map;
 
 import org.androidtest.xiaoV.Config;
+import org.androidtest.xiaoV.action.Action;
 import org.androidtest.xiaoV.action.DailySelfReflectionAction;
+import org.androidtest.xiaoV.action.GroupRuleAction;
 import org.androidtest.xiaoV.action.LifeRoutineAction;
+import org.androidtest.xiaoV.action.MenuAction;
 import org.androidtest.xiaoV.action.WeeklyReportAction;
-import org.androidtest.xiaoV.action.ClockIn.DailyStepClockIn;
 import org.androidtest.xiaoV.action.ClockIn.WeeklySportClockIn;
+import org.androidtest.xiaoV.action.ClockIn.WeeklyStepClockIn;
 import org.androidtest.xiaoV.publicutil.DateUtil;
 
 public class ActionFactory {
@@ -27,8 +30,18 @@ public class ActionFactory {
 		return action;
 	}
 
-	public static DailyStepClockIn createDailyStepClockIn() {
-		DailyStepClockIn action = new DailyStepClockIn(7);
+	public static WeeklyStepClockIn createDailyStepClockIn() {
+		WeeklyStepClockIn action = new WeeklyStepClockIn(7);
+		return action;
+	}
+
+	public static WeeklyStepClockIn createDailyStepClockIn(int times) {
+		return createDailyStepClockIn(times, false);
+	}
+
+	public static WeeklyStepClockIn createDailyStepClockIn(int times,
+			boolean isDiff) {
+		WeeklyStepClockIn action = new WeeklyStepClockIn(times, isDiff);
 		return action;
 	}
 
@@ -56,9 +69,25 @@ public class ActionFactory {
 	}
 
 	public static WeeklySportClockIn createWeeklySportClockIn(
-			int week_sport_limit_times) {
+			int week_sport_limit_times, boolean isDiff) {
 		WeeklySportClockIn action = new WeeklySportClockIn(
-				week_sport_limit_times);
+				week_sport_limit_times, isDiff);
 		return action;
 	}
+
+	public static WeeklySportClockIn createWeeklySportClockIn(
+			int week_sport_limit_times) {
+		return createWeeklySportClockIn(week_sport_limit_times, false);
+	}
+
+	public static MenuAction createMenuAction() {
+		MenuAction action = new MenuAction();
+		return action;
+	}
+
+	public static Action createGroupRuleAction(String groupNickName, File file) {
+		GroupRuleAction action = new GroupRuleAction(groupNickName, file);
+		return action;
+	}
+
 }

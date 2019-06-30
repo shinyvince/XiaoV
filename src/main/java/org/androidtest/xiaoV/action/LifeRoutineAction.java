@@ -35,6 +35,8 @@ public class LifeRoutineAction extends Action {
 		}
 	};
 
+	private static final String actionName = "每日作息打卡";
+
 	protected Logger LOG = Logger.getLogger(LifeRoutineAction.class);
 
 	private int life_routine_redpacket_count = -1;
@@ -45,12 +47,12 @@ public class LifeRoutineAction extends Action {
 
 	private final int startSleepListenerTime = 2100;
 
-	private final int endSleepListenerTime = 0400;
+	private final int endSleepListenerTime = 400;
 
 	public LifeRoutineAction(boolean life_routine_monrning_call,
 			int morning_call_time, boolean life_routine_sleep_remind,
 			int sleep_remind_time) {
-		super(LIFE_ROUTINE_VAILD_KEYWORD_LIST);
+		super(actionName, LIFE_ROUTINE_VAILD_KEYWORD_LIST);
 		setLife_routine_redpacket_count(0);
 		setLife_routine_monrning_call(life_routine_monrning_call,
 				morning_call_time);
@@ -174,8 +176,8 @@ public class LifeRoutineAction extends Action {
 		if (currentTime == getStartSleepListenerTime()) {
 			setLife_routine_redpacket_count(0);
 			MessageTools.sendGroupMsgByNickName("[进入睡前打卡红包计数监听模式]\n监听时间"
-					+ getStartSleepListenerTime() + " ~ "
-					+ getEndSleepListenerTime(),
+					+ String.format("%04d", getStartSleepListenerTime())
+					+ " ~ " + String.format("%04d", getEndSleepListenerTime()),
 					currentGroup.getGroupNickName());
 			LOG.info("notify: " + currentGroup.getGroupNickName() + ": report "
 					+ true);

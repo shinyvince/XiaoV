@@ -17,10 +17,10 @@ public class Group {
 	private String admin;
 	private List<Action> actionList = new ArrayList<>();
 
-	public Group(String nickName, String admin) {
-		LogUtil.MSG.debug("Group: init: nickName: " + nickName + ",admin: "
-				+ admin);
-		groupNickName = nickName;
+	public Group(String groupNickName, String admin) {
+		LogUtil.MSG.debug("Group: init: nickName: " + groupNickName
+				+ ",admin: " + admin);
+		this.groupNickName = groupNickName;
 		this.admin = admin;
 	}
 

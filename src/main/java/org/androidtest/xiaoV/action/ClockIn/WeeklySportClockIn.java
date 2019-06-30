@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.androidtest.xiaoV.data.Constant;
 import org.androidtest.xiaoV.data.Group;
 import org.androidtest.xiaoV.publicutil.LogUtil;
 import org.androidtest.xiaoV.publicutil.StringUtil;
@@ -38,8 +39,15 @@ public class WeeklySportClockIn extends ClockIn {
 		}
 	};
 
+	private static final String actionName = "每周运动打卡";
+
 	public WeeklySportClockIn(int weeklyLimitTimes) {
-		super(WEEKLY_SPORT_VAILD_KEYWORD_LIST, weeklyLimitTimes);
+		this(weeklyLimitTimes, false);
+	}
+
+	public WeeklySportClockIn(int weeklyLimitTimes, boolean isDiff) {
+		super(actionName, WEEKLY_SPORT_VAILD_KEYWORD_LIST, weeklyLimitTimes,
+				isDiff);
 	}
 
 	@Override
@@ -51,19 +59,29 @@ public class WeeklySportClockIn extends ClockIn {
 		String senderNickName = WechatTools
 				.getMemberDisplayOrNickNameByGroupNickName(
 						currentGroupNickName, msg.getStatusNotifyUserName());
+		LogUtil.MSG.info("action: senderNickName: " + senderNickName);
 		String fileUserName = StringUtil.filter(senderNickName);
+		LogUtil.MSG.info("action: fileUserName: " + fileUserName);
 		int week_sport_limit_times = getWeeklyLimitTimes();
 		if (StringUtil.ifNullOrEmpty(fileUserName)) {
 			return "@" + senderNickName + " 你的名字有无法识别的字符，无法处理！请改昵称。";
 		}
 		String sportfilename = SIMPLE_DAY_FORMAT_FILE.format(new Date()) + "-"
-				+ senderNickName + ".sport";
+				+ fileUserName + ".sport";
+		String stepfilename = Constant.SIMPLE_DAY_FORMAT_FILE
+				.format(new Date()) + "-" + fileUserName + ".step";
 		File sportfile = new File(CURRENT_WEEK_SAVE_PATH.getAbsolutePath()
 				+ File.separator + sportfilename);
+		File stepfile = new File(
+				Constant.CURRENT_WEEK_SAVE_PATH.getAbsolutePath()
+						+ File.separator + stepfilename);
 		try {
 			boolean isExist = false;
+			boolean isDiffExist = false;
 			if (sportfile.exists()) {
 				isExist = true;
+			} else if (stepfile.exists()) {
+				isDiffExist = true;
 			} else {
 				sportfile.createNewFile();
 			}
@@ -89,6 +107,9 @@ public class WeeklySportClockIn extends ClockIn {
 								+ WeekHelper.getCurrentWeek() + "打卡运动第" + count
 								+ "次，本周已经达标。已经运动了" + count + "次";
 					}
+				} else if (isDiff() && isDiffExist) {
+					result = "@" + senderNickName + " 你今天已经步数打卡过，不能运行打卡。";
+
 				} else {
 					if (week_sport_limit_times > count) {
 						result = "@" + senderNickName + " 于"
