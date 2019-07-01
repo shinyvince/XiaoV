@@ -249,6 +249,7 @@ public class DailySelfReflectionAction extends Action {
 	private void setWhiteList(Map<String, File> whiteList) {
 		this.whiteList.clear();
 
+		Map<String, File> newWhiteList = new HashMap<String, File>();
 		Iterator iter = whiteList.entrySet().iterator();
 		while (iter.hasNext()) {
 			Map.Entry entry = (Map.Entry) iter.next();
@@ -267,29 +268,24 @@ public class DailySelfReflectionAction extends Action {
 					newfile.delete();
 				}
 				if (filePath.renameTo(newfile)) {
-					whiteList.remove(nickName);
-					whiteList.put(nickName, newfile);
+					newWhiteList.put(nickName, newfile);
 					LogUtil.MSG.debug("setWhiteList: " + nickName
 							+ ", 变更文件成功，新路径: " + newfile.getAbsolutePath());
 				} else {
-					whiteList.remove(nickName);
 					throw new RuntimeException("setWhiteList:"
 							+ filePath.getName() + "改名为" + newfile.getName()
-							+ "失败。将" + nickName + "移除。请检查原因。");
+							+ "失败。请检查原因。");
 				}
 			} else if (newfile.exists() && newfile.isFile()) {// A路径不在，新路径存在
-				whiteList.remove(nickName);
-				whiteList.put(nickName, newfile);
+				newWhiteList.put(nickName, newfile);
 				LogUtil.MSG.debug("setWhiteList: " + nickName
 						+ ", 预设的文件路径不存在，但在另一路径找到，更新文件成功: "
 						+ newfile.getAbsolutePath());
 			} else {
-				whiteList.remove(nickName);
 				throw new RuntimeException("setWhiteList:"
-						+ filePath.getAbsolutePath() + "路径不存在或者非文件，将"
-						+ nickName + "移除。请检查文件路径。");
+						+ filePath.getAbsolutePath() + "路径不存在或者非文件。请检查文件路径。");
 			}
 		}
-		this.whiteList = whiteList;
+		this.whiteList = newWhiteList;
 	}
 }

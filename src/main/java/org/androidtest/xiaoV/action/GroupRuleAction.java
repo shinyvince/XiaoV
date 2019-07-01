@@ -28,6 +28,7 @@ public class GroupRuleAction extends Action {
 	private static final Map<String, MsgTypeEnum> RULE_VAILD_KEYWORD_LIST = new HashMap<String, MsgTypeEnum>() {
 		{
 			put("规则", MsgTypeEnum.TEXT);
+			// put("群规", MsgTypeEnum.TEXT);
 		}
 	};
 

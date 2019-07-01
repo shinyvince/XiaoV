@@ -6,6 +6,7 @@ import java.util.Map;
 import org.androidtest.xiaoV.Config;
 import org.androidtest.xiaoV.action.Action;
 import org.androidtest.xiaoV.action.DailySelfReflectionAction;
+import org.androidtest.xiaoV.action.GroupAttentionAction;
 import org.androidtest.xiaoV.action.GroupRuleAction;
 import org.androidtest.xiaoV.action.LifeRoutineAction;
 import org.androidtest.xiaoV.action.MenuAction;
@@ -87,6 +88,11 @@ public class ActionFactory {
 			int week_sport_limit_times, boolean isDiff) {
 		WeeklySportClockIn action = new WeeklySportClockIn(
 				week_sport_limit_times, isDiff);
+		return action;
+	}
+
+	public static GroupAttentionAction createGroupAttentionAction(String text) {
+		GroupAttentionAction action = new GroupAttentionAction(text);
 		return action;
 	}
 

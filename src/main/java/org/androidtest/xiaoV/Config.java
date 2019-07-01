@@ -36,6 +36,9 @@ public class Config {
 		whiteList.put("Vince蔡培培", new File(System.getProperty("user.home")
 				+ File.separator + "Desktop" + File.separator
 				+ "DAILY CHECK LIST @Vince蔡培培.xlsx"));
+		whiteList.put("王快乐。", new File(System.getProperty("user.home")
+				+ File.separator + "Desktop" + File.separator
+				+ "DAILY CHECK LIST @王快乐.xlsx"));
 		group.addAction(ActionFactory.createDailySelfReflectionAction(
 				whiteList, true));// 配置该群有每日反思打卡功能，需要配置反思人及对应的反思excel文件地址
 		Constant.groupList.add(group);
@@ -49,6 +52,8 @@ public class Config {
 		group2.addAction(ActionFactory.createWeeklySportClockIn(1, true));// 配置该群有运动打卡功能，要求一周2次打卡
 		group2.addAction(ActionFactory.createDailyStepClockIn(2, true));// 配置该群有每日步数功能
 		group2.addAction(ActionFactory.createWeeklyReportClockInAction(2, 1));// 配置该群有周报功能，周报功能会统计并播报运动打卡和每日步数数据
+		String text = "注意事项如下：\n1️⃣把群昵称改成自己的名字。\n2️⃣及时打卡，当天运动当天打卡，当天走万步当天打卡。\n3️⃣打卡形式为回复关键字+运动截图。\n4️⃣取消女生生理期请假，生理期当周请完成3次万步。\n5️⃣打卡务必输入关键字，若不清楚关键字，可在群里输入“菜单”查询。";
+		group2.addAction(ActionFactory.createGroupAttentionAction(text));
 		Constant.groupList.add(group2);
 		// //////////////////////////////////////////////
 		Group group3 = new Group("TEST123", Constant.DEFAULT_ADMIN);// 新建群信息
@@ -56,6 +61,12 @@ public class Config {
 		group3.addAction(ActionFactory.createWeeklySportClockIn(1, true));// 配置该群有运动打卡功能，要求一周2次打卡
 		group3.addAction(ActionFactory.createDailyStepClockIn(2, true));// 配置该群有每日步数功能
 		group3.addAction(ActionFactory.createWeeklyReportClockInAction(2, 1));// 配置该群有周报功能，周报功能会统计并播报运动打卡和每日步数数据
+		group3.addAction(ActionFactory.createGroupAttentionAction(text));
+		group3.addAction(ActionFactory.createGroupRuleAction(
+				group3.getGroupNickName(),
+				new File(System.getProperty("user.home") + File.separator
+						+ "Desktop" + File.separator + "TEST123.jpg")));// 配置该群有规则提醒功能
+
 		Constant.groupList.add(group3);
 	}
 

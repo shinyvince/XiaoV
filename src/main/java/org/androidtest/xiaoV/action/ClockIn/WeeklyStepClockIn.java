@@ -35,7 +35,7 @@ public class WeeklyStepClockIn extends ClockIn {
 	private static final Map<String, MsgTypeEnum> DAILY_STEP_VAILD_KEYWORD_LIST = new HashMap<String, MsgTypeEnum>() {
 		{
 			put("步数打卡", MsgTypeEnum.TEXT);
-			put("打卡步数", MsgTypeEnum.TEXT);
+			// put("打卡步数", MsgTypeEnum.TEXT);
 		}
 	};
 
@@ -106,7 +106,7 @@ public class WeeklyStepClockIn extends ClockIn {
 					result = "@" + senderNickName + " 你今天已经步数打卡过，无需重复打卡。"
 							+ WeekHelper.getCurrentWeek() + "步数打卡已完成了" + count
 							+ "次，再接再励！";
-				} else if (isDiffExist) {
+				} else if (isDiff() && isDiffExist) {
 					result = "@" + senderNickName + " 你今天已经运动打卡过，不能步数打卡。";
 				} else {
 					result = "@" + senderNickName + " 今天步数打卡成功！"

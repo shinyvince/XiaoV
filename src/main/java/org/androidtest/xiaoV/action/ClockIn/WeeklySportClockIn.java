@@ -35,7 +35,7 @@ public class WeeklySportClockIn extends ClockIn {
 	private static final Map<String, MsgTypeEnum> WEEKLY_SPORT_VAILD_KEYWORD_LIST = new HashMap<String, MsgTypeEnum>() {
 		{
 			put("运动打卡", MsgTypeEnum.TEXT);
-			put("打卡运动", MsgTypeEnum.TEXT);
+			// put("打卡运动", MsgTypeEnum.TEXT);
 		}
 	};
 
@@ -80,7 +80,7 @@ public class WeeklySportClockIn extends ClockIn {
 			boolean isDiffExist = false;
 			if (sportfile.exists()) {
 				isExist = true;
-			} else if (stepfile.exists()) {
+			} else if (isDiff() && stepfile.exists()) {
 				isDiffExist = true;
 			} else {
 				sportfile.createNewFile();
