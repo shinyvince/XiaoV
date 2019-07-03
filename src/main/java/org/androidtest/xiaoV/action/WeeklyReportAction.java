@@ -100,20 +100,24 @@ public class WeeklyReportAction extends Action {
 
 							if ((array[j].isFile()
 									&& array[j].getName().endsWith(".step") && array[j]
-									.getName().contains(list.get(i)))
+									.getName()
+									.contains("-" + list.get(i) + "."))
 									|| (array[j].isFile()
 											&& array[j].getName().endsWith(
 													".step") && array[j]
-											.getName().contains(name))) {
+											.getName().contains(
+													"-" + name + "."))) {
 								countstep++;
 							}
 							if ((array[j].isFile()
 									&& array[j].getName().endsWith(".sport") && array[j]
-									.getName().contains(list.get(i)))
+									.getName()
+									.contains("-" + list.get(i) + "."))
 									|| (array[j].isFile()
 											&& array[j].getName().endsWith(
 													".sport") && array[j]
-											.getName().contains(name))) {
+											.getName().contains(
+													"-" + name + "."))) {
 								countsport++;
 							}
 						}

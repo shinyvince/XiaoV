@@ -98,7 +98,8 @@ public class WeeklyStepClockIn extends ClockIn {
 				for (int i = 0; i < array.length; i++) {
 					if (array[i].isFile()
 							&& array[i].getName().endsWith(".step")
-							&& array[i].getName().contains(fileUserName)) {
+							&& array[i].getName().contains(
+									"-" + fileUserName + ".")) {
 						count++;
 					}
 				}
@@ -159,10 +160,10 @@ public class WeeklyStepClockIn extends ClockIn {
 
 					if ((array[j].isFile()
 							&& array[j].getName().endsWith(".step") && array[j]
-							.getName().contains(list.get(i)))
+							.getName().contains("-" + list.get(i) + "."))
 							|| (array[j].isFile()
 									&& array[j].getName().endsWith(".step") && array[j]
-									.getName().contains(name))) {
+									.getName().contains("-" + name + "."))) {
 						if (getWeeklyLimitTimes() >= 7) {
 							if (array[j].getName().contains(todaystepkeyword)) {
 								isCurrentUserExistTodayStep = true;

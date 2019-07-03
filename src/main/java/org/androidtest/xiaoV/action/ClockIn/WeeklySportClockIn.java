@@ -92,7 +92,8 @@ public class WeeklySportClockIn extends ClockIn {
 				for (int i = 0; i < array.length; i++) {
 					if (array[i].isFile()
 							&& array[i].getName().endsWith(".sport")
-							&& array[i].getName().contains(fileUserName)) {
+							&& array[i].getName().contains(
+									"-" + fileUserName + ".")) {
 						count++;
 					}
 				}
@@ -165,10 +166,10 @@ public class WeeklySportClockIn extends ClockIn {
 				for (int j = 0; j < array.length; j++) {
 					if ((array[j].isFile()
 							&& array[j].getName().endsWith(".sport") && array[j]
-							.getName().contains(list.get(i)))
+							.getName().contains("-" + list.get(i) + "."))
 							|| (array[j].isFile()
 									&& array[j].getName().endsWith(".sport") && array[j]
-									.getName().contains(name))) {
+									.getName().contains("-" + name + "."))) {
 						countsport++;
 					}
 				}
