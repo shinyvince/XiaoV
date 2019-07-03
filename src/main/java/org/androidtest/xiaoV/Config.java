@@ -29,8 +29,8 @@ public class Config {
 						+ "Desktop" + File.separator + "彭于晏已退出群聊.jpg")));// 配置该群有规则提醒功能
 		group.addAction(ActionFactory.createWeeklySportClockIn(2));// 配置该群有运动打卡功能，要求一周2次打卡
 		group.addAction(ActionFactory.createDailyStepClockIn());// 配置该群有每日步数功能
-		group.addAction(ActionFactory.createLifeRoutineClockInAction(true,
-				0731, true, 2245));// 配置该群有作息打卡功能，设定每天0731晚起提醒和2230睡觉提醒
+		group.addAction(ActionFactory.createLifeRoutineClockInAction(true, 731,
+				true, 2245));// 配置该群有作息打卡功能，设定每天0731晚起提醒和2230睡觉提醒
 		group.addAction(ActionFactory.createWeeklyReportClockInAction(7, 2));// 配置该群有周报功能，周报功能会统计并播报运动打卡和每日步数数据
 		Map<String, File> whiteList = new HashMap<String, File>();
 		whiteList.put("Vince蔡培培", new File(System.getProperty("user.home")
@@ -66,7 +66,6 @@ public class Config {
 				group3.getGroupNickName(),
 				new File(System.getProperty("user.home") + File.separator
 						+ "Desktop" + File.separator + "TEST123.jpg")));// 配置该群有规则提醒功能
-
 		Constant.groupList.add(group3);
 	}
 
