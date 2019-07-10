@@ -139,8 +139,6 @@ public class LifeRoutineAction extends Action {
 		String currentTimeString = new SimpleDateFormat("HH:mm")
 				.format(currentDate);
 		if (isLife_routine_monrning_call()) {// 响应morningcall功能
-			LogUtil.MSG.debug("notify: " + "currentTime: " + currentTime
-					+ ",getMorningCallTime: " + getMorningCallTime());
 			if (currentTime == getMorningCallTime()) {
 				String currentGroupNickName = currentGroup.getGroupNickName();
 				MessageTools.sendGroupMsgByNickName(currentTimeString

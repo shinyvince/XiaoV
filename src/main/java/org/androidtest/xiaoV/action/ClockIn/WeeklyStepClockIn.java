@@ -194,6 +194,9 @@ public class WeeklyStepClockIn extends ClockIn {
 
 				}
 			}
+			if (errorStep == null) {
+				errorStep = "无";
+			}
 			if (getWeeklyLimitTimes() >= 7) {
 				result = "------今日步数未完成：-------\n" + errorStep;
 			} else {
