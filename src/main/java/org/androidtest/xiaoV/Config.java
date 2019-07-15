@@ -19,6 +19,7 @@ public class Config {
 
 	/**
 	 * 需要配置的群白名单和该群所需的组件信息。 可选组件的工厂见org.androidtest.vince.factory
+	 * 注意：配置的群需要保存进通讯录，不然会导致获取群成员时空指针
 	 */
 	public static void initGroupAndAdmin() {
 		Group group = new Group("彭于晏已退出群聊", Constant.DEFAULT_ADMIN);// 新建群信息
