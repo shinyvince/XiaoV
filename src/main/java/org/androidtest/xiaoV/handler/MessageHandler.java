@@ -1,7 +1,5 @@
 package org.androidtest.xiaoV.handler;
 
-import static org.androidtest.xiaoV.data.Constant.CURRENT_WEEK_SAVE_PATH;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
@@ -223,7 +221,8 @@ public class MessageHandler {
 
 	// public static String handleWeeklyReportUserMessage() {
 	// String result = null;
-	// File dir = new File(Constant.CURRENT_WEEK_SAVE_PATH.getAbsolutePath());
+	// File dir = new
+	// File(Constant.Constant.getCurrentWeekSavePath().getAbsolutePath());
 	// if (dir.isDirectory()) {
 	// File[] array = dir.listFiles();
 	// if (array.length > 0) {
@@ -304,7 +303,7 @@ public class MessageHandler {
 	// if (text.contains(Constant.COLON_SPLIT)) {
 	// try {
 	// String str = text.split(Constant.COLON_SPLIT)[1];
-	// File file = new File(Constant.CURRENT_WEEK_SAVE_PATH
+	// File file = new File(Constant.Constant.getCurrentWeekSavePath()
 	// + File.separator + str);
 	// if (file.exists()) {
 	// file.delete();
@@ -354,7 +353,7 @@ public class MessageHandler {
 			} else {
 				String fileName = Constant.SIMPLE_DATE_FORMAT_FILE
 						.format(new Date()) + "-" + msg.getFileName();
-				String filePath = CURRENT_WEEK_SAVE_PATH.getAbsolutePath()
+				String filePath = Constant.getCurrentWeekSavePath()
 						+ File.separator + fileName; // 这里是需要保存收到的文件路径，文件可以是任何格式如PDF，WORD，EXCEL等。
 				DownloadTools.getDownloadFn(msg, MsgTypeEnum.MEDIA.getType(),
 						filePath);

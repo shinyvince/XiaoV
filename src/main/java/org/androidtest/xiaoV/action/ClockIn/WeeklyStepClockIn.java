@@ -1,6 +1,5 @@
 package org.androidtest.xiaoV.action.ClockIn;
 
-import static org.androidtest.xiaoV.data.Constant.CURRENT_WEEK_SAVE_PATH;
 import static org.androidtest.xiaoV.data.Constant.SIMPLE_DAY_FORMAT_FILE;
 
 import java.io.File;
@@ -73,12 +72,11 @@ public class WeeklyStepClockIn extends ClockIn {
 
 		String stepfilename = Constant.SIMPLE_DAY_FORMAT_FILE
 				.format(new Date()) + "-" + fileUserName + ".step";
-		File stepfile = new File(
-				Constant.CURRENT_WEEK_SAVE_PATH.getAbsolutePath()
-						+ File.separator + stepfilename);
+		File stepfile = new File(Constant.getCurrentWeekSavePath()
+				+ File.separator + stepfilename);
 		String sportfilename = SIMPLE_DAY_FORMAT_FILE.format(new Date()) + "-"
 				+ fileUserName + ".sport";
-		File sportfile = new File(CURRENT_WEEK_SAVE_PATH.getAbsolutePath()
+		File sportfile = new File(Constant.getCurrentWeekSavePath()
 				+ File.separator + sportfilename);
 		try {
 			boolean isExist = false;
@@ -90,8 +88,7 @@ public class WeeklyStepClockIn extends ClockIn {
 			} else {
 				stepfile.createNewFile();
 			}
-			File dir = new File(
-					Constant.CURRENT_WEEK_SAVE_PATH.getAbsolutePath());
+			File dir = new File(Constant.getCurrentWeekSavePath());
 			if (dir.isDirectory()) {
 				File[] array = dir.listFiles();
 				int count = 0;
@@ -136,7 +133,7 @@ public class WeeklyStepClockIn extends ClockIn {
 				+ group.getGroupNickName());
 		String currentGroupNickName = group.getGroupNickName();
 		String result = null;
-		File dir = CURRENT_WEEK_SAVE_PATH;
+		File dir = new File(Constant.getCurrentWeekSavePath());
 		List<String> list = WechatTools
 				.getMemberListByGroupNickName2(currentGroupNickName);
 		LogUtil.MSG.debug("report: " + currentGroupNickName + "群成员:"

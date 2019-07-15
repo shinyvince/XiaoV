@@ -256,8 +256,7 @@ public class DailySelfReflectionAction extends Action {
 			String nickName = (String) entry.getKey();
 			File filePath = (File) entry.getValue();
 
-			File newfile = new File(Constant.DATA_SAVE_PATH.getAbsolutePath()
-					+ File.separator
+			File newfile = new File(Constant.getDataSavePath() + File.separator
 					+ createDailySelfReflectionFilename(nickName)
 					+ getFileExtension(filePath));
 			LogUtil.MSG.info("setWhiteList: " + newfile.getAbsolutePath());

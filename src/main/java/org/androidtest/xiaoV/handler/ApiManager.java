@@ -1,6 +1,5 @@
 package org.androidtest.xiaoV.handler;
 
-import static org.androidtest.xiaoV.data.Constant.CURRENT_WEEK_SAVE_PATH;
 import static org.androidtest.xiaoV.data.Constant.groupList;
 
 import java.io.File;
@@ -102,7 +101,8 @@ public class ApiManager implements IMsgHandlerFace {
 
 			String filename = Constant.SIMPLE_DATE_FORMAT_FILE
 					.format(new Date()) + "-" + nickName + ".jpg";// 这里使用收到图片的时间作为文件名
-			String picPath = CURRENT_WEEK_SAVE_PATH + File.separator + filename;
+			String picPath = Constant.getCurrentWeekSavePath() + File.separator
+					+ filename;
 			DownloadTools
 					.getDownloadFn(msg, MsgTypeEnum.PIC.getType(), picPath); // 保存图片的路径
 		}
@@ -153,8 +153,8 @@ public class ApiManager implements IMsgHandlerFace {
 
 			String filename = Constant.SIMPLE_DATE_FORMAT_FILE
 					.format(new Date()) + "-" + nickName + ".mp4";
-			String viedoPath = CURRENT_WEEK_SAVE_PATH + File.separator
-					+ filename;
+			String viedoPath = Constant.getCurrentWeekSavePath()
+					+ File.separator + filename;
 			DownloadTools.getDownloadFn(msg, MsgTypeEnum.VIEDO.getType(),
 					viedoPath);
 		}

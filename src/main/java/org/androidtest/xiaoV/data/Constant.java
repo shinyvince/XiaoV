@@ -18,13 +18,24 @@ public class Constant {
 	/**
 	 * 输出路径相关
 	 */
-	public static File OUTPUT_PATH = FileOperatorUtil.mkdirs(System
-			.getProperty("user.dir"));
-	public static File DATA_SAVE_PATH = FileOperatorUtil.mkdirs(OUTPUT_PATH
-			.getAbsolutePath() + File.separator + "data");
-	public static File CURRENT_WEEK_SAVE_PATH = FileOperatorUtil
-			.mkdirs(DATA_SAVE_PATH.getAbsolutePath() + File.separator
-					+ WeekHelper.getCurrentWeek());
+	public static String getOutPutPath() {
+		return FileOperatorUtil.mkdirs(System.getProperty("user.dir"))
+				.getAbsolutePath();
+
+	}
+
+	public static String getDataSavePath() {
+		return FileOperatorUtil.mkdirs(
+				getOutPutPath() + File.separator + "data").getAbsolutePath();
+
+	}
+
+	public static String getCurrentWeekSavePath() {
+		return FileOperatorUtil.mkdirs(
+				getDataSavePath() + File.separator
+						+ WeekHelper.getCurrentWeek()).getAbsolutePath();
+
+	}
 
 	/**
 	 * 时间处理

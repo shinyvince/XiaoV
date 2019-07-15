@@ -30,7 +30,7 @@ public class Wechat {
 		Config.initGroupAndAdmin();
 		// 登陆
 		LoginController login = new LoginController();
-		login.login(Constant.OUTPUT_PATH.getAbsolutePath());
+		login.login(Constant.getOutPutPath());
 	}
 
 	private void setBoardcastListener() {

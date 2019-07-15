@@ -1,7 +1,5 @@
 package org.androidtest.xiaoV.action;
 
-import static org.androidtest.xiaoV.data.Constant.CURRENT_WEEK_SAVE_PATH;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -62,7 +60,7 @@ public class WeeklyReportAction extends Action {
 				+ g.getGroupNickName());
 		String result = null;
 		String currentGroupNickName = g.getGroupNickName();
-		File dir = new File(CURRENT_WEEK_SAVE_PATH.getAbsolutePath());
+		File dir = new File(Constant.getCurrentWeekSavePath());
 		List<String> list = WechatTools
 				.getMemberListByGroupNickName2(currentGroupNickName);
 		LogUtil.MSG.debug("action: " + currentGroupNickName + "群成员:"

@@ -96,8 +96,8 @@ public class GroupRuleAction extends Action {
 	}
 
 	public void setRuleFile(String groupNickName, File ruleFile) {
-		File newfile = new File(Constant.DATA_SAVE_PATH.getAbsolutePath()
-				+ File.separator + createGroupRuleFilename(groupNickName)
+		File newfile = new File(Constant.getDataSavePath() + File.separator
+				+ createGroupRuleFilename(groupNickName)
 				+ getFileExtension(ruleFile));
 		LogUtil.MSG.info("setRuleFile: " + newfile.getAbsolutePath());
 		if (ruleFile.exists() && ruleFile.isFile()) {// A路径存在
