@@ -153,8 +153,8 @@ public class DailySelfReflectionAction extends Action {
 				.format(currentDate));
 		boolean result = false;
 		if (isNoonRemind()) {
-			LogUtil.MSG.debug("notify: currentTime: " + currentTime
-					+ ", getNoonRemindTime(): " + getNoonRemindTime());
+			// LogUtil.MSG.debug("notify: currentTime: " + currentTime
+			// + ", getNoonRemindTime(): " + getNoonRemindTime());
 			if (currentTime == getNoonRemindTime()) {
 				Iterator iter = whiteList.entrySet().iterator();
 				while (iter.hasNext()) {
@@ -183,8 +183,8 @@ public class DailySelfReflectionAction extends Action {
 			}
 		}
 		if (currentTime == getNightRemindTime()) {
-			LogUtil.MSG.debug("notify: currentTime: " + currentTime
-					+ ", getNightRemindTime(): " + getNightRemindTime());
+			// LogUtil.MSG.debug("notify: currentTime: " + currentTime
+			// + ", getNightRemindTime(): " + getNightRemindTime());
 			Iterator iter = whiteList.entrySet().iterator();
 			while (iter.hasNext()) {
 				Map.Entry entry = (Map.Entry) iter.next();

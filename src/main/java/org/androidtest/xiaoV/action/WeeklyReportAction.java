@@ -184,8 +184,8 @@ public class WeeklyReportAction extends Action {
 				.format(currentDate));
 		String currentTimeString = new SimpleDateFormat("HH:mm")
 				.format(currentDate);
-		LogUtil.MSG.debug("notify: " + "currentTime: " + currentTime
-				+ ",autoReportTime: " + autoReportTime);
+		// LogUtil.MSG.debug("notify: " + "currentTime: " + currentTime
+		// + ",autoReportTime: " + autoReportTime);
 		if (currentTime == autoReportTime) {
 			String currentGroupNickName = currentGroup.getGroupNickName();
 			MessageTools.sendGroupMsgByNickName(currentTimeString
