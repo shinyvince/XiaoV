@@ -57,32 +57,6 @@ public class ApiManager implements IMsgHandlerFace {
 		return result;
 	}
 
-	// /**
-	// * 是否是白名单里某群的管理员
-	// *
-	// * @param msg
-	// * @return
-	// */
-	// private static boolean isVaildWhiteAdmin(BaseMsg msg) {
-	// if (!msg.isGroupMsg()) {
-	// String currentNickName1 = WechatTools.getNickNameByUserName(msg
-	// .getFromUserName());
-	// String currentNickName2 = WechatTools.getDisplayNameByUserName(msg
-	// .getFromUserName());
-	// if (currentNickName1.equals(Constant.DEFAULT_ADMIN)
-	// || currentNickName2.equals(Constant.DEFAULT_ADMIN)) {
-	// return true;
-	// }
-	// for (Group group : groupList) {
-	// if (currentNickName1.equals(group.getAdmin())
-	// || currentNickName2.equals(group.getAdmin())) {
-	// return true;
-	// }
-	// }
-	// }
-	// return false;
-	// }
-
 	@Override
 	public String nameCardMsgHandle(BaseMsg msg) {
 		return null;
