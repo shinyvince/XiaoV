@@ -26,6 +26,7 @@ public abstract class ClockIn extends Action {
 					"ClockIn: weeklyLimitTimes is out of range: "
 							+ weeklyLimitTimes);
 		}
+		setDiff(isDiff);
 	}
 
 	protected int getWeeklyLimitTimes() {
